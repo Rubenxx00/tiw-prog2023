@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -20,6 +21,7 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import it.polimi.tiw.beans.Course;
 import it.polimi.tiw.beans.User;
 import it.polimi.tiw.dao.CourseDAO;
+import it.polimi.tiw.dao.SessionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 
 /**
@@ -51,7 +53,7 @@ public class Home extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// get user from session
-		User user = (User) request.getSession().getAttribute("user");
+		User user = (User) request.getSession().getAttribute("currentUser");
 		if (user == null) {
 			response.sendRedirect(getServletContext().getContextPath() + "/index.html");
 			return;
@@ -62,22 +64,22 @@ public class Home extends HttpServlet {
 			ServletContext servletContext = getServletContext();
 			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 			List<Course> courses = courseDAO.findCoursesByTeacherId(user.getLogin());
-            Course selectedCourse = null;
 
             // Get the selected course ID from the "selected" parameter in the URL
-            String selectedCourseId = request.getParameter("selected");
-
-            if (selectedCourseId != null) {
-                // Find the course with the provided ID
-                selectedCourse = courseDAO.getCourseById(Integer.parseInt(selectedCourseId));
-            }
+            Integer selectedCourseId = NumberUtils.createInteger(request.getParameter("selected"));
 
             // Use the first course as fallback if no course is selected
-            if (selectedCourse == null && !courses.isEmpty()) {
-                selectedCourse = courses.get(0);
+            if (selectedCourseId == null && !courses.isEmpty()) {
+            	selectedCourseId = courses.get(0).getIdcourse();
             }
+
+			if (selectedCourseId != null) {
+				// Load sessions for selected course
+				SessionDAO sessionDAO = new SessionDAO(connection);
+				ctx.setVariable("sessions", sessionDAO.getSessionsByCourseId(selectedCourseId));
+			}
 			ctx.setVariable("courses", courses);
-			ctx.setVariable("selectedCourse", selectedCourse);
+			ctx.setVariable("selectedCourseId", selectedCourseId);
 			templateEngine.process(path, ctx, response.getWriter());
 		} else {
 			String path = "/WEB-INF/StudentHome.html";

@@ -18,13 +18,13 @@ public class CourseDAO {
 
     public List<Course> findCoursesByTeacherId(int teacherId) throws SQLException {
         List<Course> courses = new ArrayList<>();
-        String query = "SELECT * FROM course WHERE teacherId = ?";
+        String query = "SELECT * FROM course WHERE teacher = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, teacherId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     Course course = new Course();
-                    course.setIdcourse(resultSet.getInt("id"));
+                    course.setIdcourse(resultSet.getInt("idcourse"));
                     course.setTitle(resultSet.getString("title"));
                     course.setTeacher(resultSet.getInt("teacher"));
                     courses.add(course);
@@ -36,13 +36,13 @@ public class CourseDAO {
     // get by id
     public Course getCourseById(int id) throws SQLException {
         Course course = null;
-        String query = "SELECT * FROM course WHERE id = ?";
+        String query = "SELECT * FROM course WHERE idcourse = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, id);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     course = new Course();
-                    course.setIdcourse(resultSet.getInt("id"));
+                    course.setIdcourse(resultSet.getInt("idcourse"));
                     course.setTitle(resultSet.getString("title"));
                     course.setTeacher(resultSet.getInt("teacher"));
                 }

@@ -37,4 +37,20 @@ public class Course {
     public void setTeacher(int teacher) {
         this.teacher = teacher;
     }
+
+    // override equals and hashcode
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (!(obj instanceof Course))
+            return false;
+        Course course = (Course) obj;
+        return course.getIdcourse() == this.idcourse;
+    }
+
+    @Override
+    public int hashCode() {
+        return idcourse;
+    }
 }
