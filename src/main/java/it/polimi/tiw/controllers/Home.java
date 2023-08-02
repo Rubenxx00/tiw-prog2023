@@ -36,7 +36,6 @@ public class Home extends HttpServlet {
 
     public Home() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	public void init() throws ServletException {
@@ -54,10 +53,6 @@ public class Home extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// get user from session
 		User user = (User) request.getSession().getAttribute("currentUser");
-		if (user == null) {
-			response.sendRedirect(getServletContext().getContextPath() + "/index.html");
-			return;
-		}
 		try {
 			if (user.getRole().equals("teacher")) {
 			String path = "/WEB-INF/TeacherHome.html";

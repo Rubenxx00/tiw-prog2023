@@ -5,6 +5,7 @@ public class Result {
     private int session_idsession;
     private Integer grade;
     private String state;
+    private Student student;
 
     // Constructors, getters, setters, and other methods
 
@@ -51,5 +52,10 @@ public class Result {
     public void setState(String state) {
         this.state = state;
     }
+
+    public Student getStudent() { return student; }
+
+    public void setStudent(Student student) { this.student = student; }
+
 }
 

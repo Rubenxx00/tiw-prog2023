@@ -1,16 +1,17 @@
 package it.polimi.tiw.beans;
 
-public class Student {
+public class Student extends User {
     private int student_number;
     private String school;
 
     // Constructors, getters, setters, and other methods
 
     // Default constructor
-    public Student() {}
+    public Student() { super(); }
 
     // Constructor with all fields
     public Student(int student_number, String school) {
+        super();
         this.student_number = student_number;
         this.school = school;
     }

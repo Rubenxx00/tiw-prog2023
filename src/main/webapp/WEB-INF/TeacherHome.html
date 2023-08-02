@@ -33,7 +33,16 @@
 			<th>Session date</th>
 		</tr>
 		<tr th:each="s : ${sessions}">
-			<td th:text="${s.date}"></td>
+			<!-- link with text s.date -->
+			<td>
+				<a th:href="@{/GetResults(sessionId=${s.idsession})}">
+					<span th:text="${s.date}"></span>
+				</a>
+			</td>
+		</tr>
+		<!-- if sessions is empty, show message-->
+		<tr th:if="${#lists.isEmpty(sessions)}">
+			<td>No sessions found</td>
 		</tr>
 	</table>
 </body>

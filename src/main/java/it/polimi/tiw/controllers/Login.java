@@ -22,6 +22,8 @@ import it.polimi.tiw.beans.User;
 import it.polimi.tiw.dao.UserDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 
+import static it.polimi.tiw.utils.Utils.tryParse;
+
 @WebServlet("/Login")
 public class Login extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -44,7 +46,7 @@ public class Login extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
+
 		// obtain and escape params
 		String login = null;
 		String pwd = null;
@@ -67,14 +69,9 @@ public class Login extends HttpServlet {
 		// query db to authenticate for user
 		UserDAO userDAO = new UserDAO(connection);
 		try {
-			int loginId = Integer.parseInt(login);
-			user = userDAO.checkCredentials(loginId, pwd);
-			if (user != null) {
-				HttpSession session = request.getSession();
-				session.setAttribute("currentUser", user);
-			}
-			else {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid user");
+			Integer loginId = tryParse(login);
+			if(loginId != null){
+				user = userDAO.checkCredentials(loginId, pwd);
 			}
 		} catch (SQLException e) {
 			response.sendError(500, "Database access failed");
@@ -85,17 +82,17 @@ public class Login extends HttpServlet {
 
 		String path;
 		if (user == null) {
-			ServletContext servletContext = getServletContext();
-			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+			final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 			ctx.setVariable("errorMsg", "Incorrect username or password");
-			path = "/index.html";
-			templateEngine.process(path, ctx, response.getWriter());
+			templateEngine.process("index.html", ctx, response.getWriter());
 		} else {
+			HttpSession session = request.getSession();
+			session.setAttribute("currentUser", user);
+
 			request.getSession().setAttribute("currentUser", user);
 			path = getServletContext().getContextPath() + "/Home";
 			response.sendRedirect(path);
 		}
-
 	}
 
 	public void destroy() {
