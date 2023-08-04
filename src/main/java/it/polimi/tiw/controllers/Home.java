@@ -32,8 +32,6 @@ public class Home extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
 	private TemplateEngine templateEngine;
-	private CourseDAO courseDAO;
-
     public Home() {
         super();
     }
@@ -46,8 +44,6 @@ public class Home extends HttpServlet {
 		this.templateEngine = new TemplateEngine();
 		this.templateEngine.setTemplateResolver(templateResolver);
 		templateResolver.setSuffix(".html");
-
-		courseDAO = new CourseDAO(connection);
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -55,27 +51,28 @@ public class Home extends HttpServlet {
 		User user = (User) request.getSession().getAttribute("currentUser");
 		try {
 			if (user.getRole().equals("teacher")) {
-			String path = "/WEB-INF/TeacherHome.html";
-			ServletContext servletContext = getServletContext();
-			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-			List<Course> courses = courseDAO.findCoursesByTeacherId(user.getLogin());
+				String path = "/WEB-INF/TeacherHome.html";
+				ServletContext servletContext = getServletContext();
+				final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+				CourseDAO courseDAO = new CourseDAO(connection);
+				List<Course> courses = courseDAO.findCoursesByTeacherId(user.getLogin());
 
-            // Get the selected course ID from the "selected" parameter in the URL
-            Integer selectedCourseId = NumberUtils.createInteger(request.getParameter("selected"));
+				// Get the selected course ID from the "selected" parameter in the URL
+				Integer selectedCourseId = NumberUtils.createInteger(request.getParameter("selected"));
 
-            // Use the first course as fallback if no course is selected
-            if (selectedCourseId == null && !courses.isEmpty()) {
-            	selectedCourseId = courses.get(0).getIdcourse();
-            }
+				// Use the first course as fallback if no course is selected
+				if (selectedCourseId == null && !courses.isEmpty()) {
+					selectedCourseId = courses.get(0).getIdcourse();
+				}
 
-			if (selectedCourseId != null) {
-				// Load sessions for selected course
-				SessionDAO sessionDAO = new SessionDAO(connection);
-				ctx.setVariable("sessions", sessionDAO.getSessionsByCourseId(selectedCourseId));
-			}
-			ctx.setVariable("courses", courses);
-			ctx.setVariable("selectedCourseId", selectedCourseId);
-			templateEngine.process(path, ctx, response.getWriter());
+				if (selectedCourseId != null) {
+					// Load sessions for selected course
+					SessionDAO sessionDAO = new SessionDAO(connection);
+					ctx.setVariable("sessions", sessionDAO.getSessionsByCourseId(selectedCourseId));
+				}
+				ctx.setVariable("courses", courses);
+				ctx.setVariable("selectedCourseId", selectedCourseId);
+				templateEngine.process(path, ctx, response.getWriter());
 		} else {
 			String path = "/WEB-INF/StudentHome.html";
 			ServletContext servletContext = getServletContext();

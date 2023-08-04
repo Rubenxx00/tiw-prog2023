@@ -12,13 +12,13 @@
 <!--matricola, cognome e nome, email, corso di laurea, voto e stato di valutazione.-->
 <table border="solid">
     <tr>
-        <th>Student ID</th>
-        <th>Name</th>
-        <th>Surname</th>
-        <th>Email</th>
-        <th>School</th>
-        <th>Grade</th>
-        <th>State</th>
+        <th><a th:href="@{/GetResults(sessionId=${sessionId}, sort='studentId', order=${order eq 'asc' ? 'desc' : 'asc'})}">Student ID</a></th>
+        <th><a th:href="@{/GetResults(sessionId=${sessionId}, sort='name', order=${order eq 'asc' ? 'desc' : 'asc'})}">Name</a></th>
+        <th><a th:href="@{/GetResults(sessionId=${sessionId}, sort='surname', order=${order eq 'asc' ? 'desc' : 'asc'})}">Surname</a></th>
+        <th><a th:href="@{/GetResults(sessionId=${sessionId}, sort='email', order=${order eq 'asc' ? 'desc' : 'asc'})}">Email</a></th>
+        <th><a th:href="@{/GetResults(sessionId=${sessionId}, sort='school', order=${order eq 'asc' ? 'desc' : 'asc'})}">School</a></th>
+        <th><a th:href="@{/GetResults(sessionId=${sessionId}, sort='grade', order=${order eq 'asc' ? 'desc' : 'asc'})}">Grade</a></th>
+        <th><a th:href="@{/GetResults(sessionId=${sessionId}, sort='state', order=${order eq 'asc' ? 'desc' : 'asc'})}">State</a></th>
     </tr>
     <tr th:each="r : ${results}">
         <td th:text="${r.student_student_number}"></td>
@@ -32,12 +32,17 @@
         <td>
             <form action="#" th:action="@{/EditResult}" method="GET">
                 <input type="hidden" name="studentId" th:value="${r.student_student_number}" />
-                <input type="hidden" name="sessionId" th:value="${r.session_idsession}" />
+                <input type="hidden" name="sessionId" th:value="${sessionId}" />
                 <input type="submit" value="Edit" />
             </form>
         </td>
     </tr>
 </table>
+<form action="#" th:action="@{/PostResults}" method="POST">
+    <input type="hidden" name="sessionId" th:value="${sessionId}" />
+    <input type="submit" name="submit" value="Publish" />
+    <input type="submit" name="submit" value="Post" />
+</form>
 </body>
 
 </html>

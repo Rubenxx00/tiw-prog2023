@@ -32,12 +32,19 @@
             <td th:text="${student.school}"></td>
         </tr>
     </table>
-<form action="EditResult.html">
-    <!-- form to select a grade from 1 to 30 -->
+<form th:action="@{/EditResult}" method="post">
+    <input type="hidden" name="studentId" th:value="${result.student_student_number}" />
+    <input type="hidden" name="sessionId" th:value="${result.session_idsession}" />
+    <!-- form to select a grade from 1 to 31 -->
     <label for="grade">Grade:</label>
-    <select id="grade" name="grade" th:value="${result.grade}">
-        <option th:each="i : ${#numbers.sequence(1, 30)}" th:value="${i}" th:text="${i}"></option>
+    <select id="grade" name="grade">
+        <option th:each="i : ${#numbers.sequence(1, 31)}"
+                th:value="${i}"
+                th:text="${i}"
+                th:selected="${i == result.grade}">
+        </option>
     </select>
+    <button type="submit">Submit</button>
 </form>
 </body>
 </html>

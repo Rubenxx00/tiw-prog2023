@@ -4,7 +4,7 @@ public class Result {
     private int student_student_number;
     private int session_idsession;
     private Integer grade;
-    private String state;
+    private ResultState state;
     private Student student;
 
     // Constructors, getters, setters, and other methods
@@ -13,11 +13,11 @@ public class Result {
     public Result() {}
 
     // Constructor with all fields
-    public Result(int student_student_number, int session_idsession, Integer grade, String state) {
+    public Result(int student_student_number, int session_idsession, Integer grade, int state) {
         this.student_student_number = student_student_number;
         this.session_idsession = session_idsession;
         this.grade = grade;
-        this.state = state;
+        this.state = ResultState.fromValue(state);
     }
 
     // Getters and setters for each property
@@ -45,11 +45,11 @@ public class Result {
         this.grade = grade;
     }
 
-    public String getState() {
+    public ResultState getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(ResultState state) {
         this.state = state;
     }
 

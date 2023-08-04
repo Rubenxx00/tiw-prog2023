@@ -1,5 +1,6 @@
 package it.polimi.tiw.controllers;
 
+import it.polimi.tiw.InvalidValueException;
 import it.polimi.tiw.beans.Result;
 import it.polimi.tiw.dao.ResultDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
@@ -25,7 +26,6 @@ public class EditResult extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private Connection connection = null;
     private TemplateEngine templateEngine;
-    private ResultDAO resultDAO;
 
     public EditResult() {
         super();
@@ -39,13 +39,30 @@ public class EditResult extends HttpServlet {
         this.templateEngine = new TemplateEngine();
         this.templateEngine.setTemplateResolver(templateResolver);
         templateResolver.setSuffix(".html");
-
-        resultDAO = new ResultDAO(connection);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // update result
+        Integer sessionId = Utils.tryParse(req.getParameter("sessionId"));
+        Integer studentId = Utils.tryParse(req.getParameter("studentId"));
+        Integer grade = Utils.tryParse(req.getParameter("grade"));
+        if (sessionId == null || studentId == null || grade == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing params");
+            return;
+        }
 
+        try {
+            ResultDAO resultDAO = new ResultDAO(connection);
+            resultDAO.updateGrade(sessionId, studentId, grade);
+        } catch (SQLException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");
+            return;
+        } catch (InvalidValueException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            return;
+        }
+        resp.sendRedirect(getServletContext().getContextPath() + "/GetResults?sessionId=" + sessionId);
     }
 
     @Override
@@ -58,6 +75,7 @@ public class EditResult extends HttpServlet {
             return;
         }
         try {
+            ResultDAO resultDAO = new ResultDAO(connection);
             Result result = resultDAO.getResultByKey(sessionId, studentId);
             final WebContext ctx = new WebContext(req, resp, getServletContext(), req.getLocale());
             ctx.setVariable("result", result);

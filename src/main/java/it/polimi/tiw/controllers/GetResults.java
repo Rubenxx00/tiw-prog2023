@@ -3,6 +3,8 @@ package it.polimi.tiw.controllers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -26,7 +28,6 @@ public class GetResults extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private Connection connection = null;
     private TemplateEngine templateEngine;
-    private ResultDAO resultDAO;
 
     public GetResults() {
         super();
@@ -41,20 +42,27 @@ public class GetResults extends HttpServlet {
         this.templateEngine.setTemplateResolver(templateResolver);
         templateResolver.setSuffix(".html");
 
-        resultDAO = new ResultDAO(connection);
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer sessionId = Utils.tryParse(req.getParameter("sessionId"));
+        String sortBy = req.getParameter("sort");
+        String sortOrder = req.getParameter("order");
         if (sessionId == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing session id");
             return;
         }
         try {
+            ResultDAO resultDAO = new ResultDAO(connection);
             List<Result> results = resultDAO.getResultsBySessionId(sessionId);
+            if(sortBy != null){
+               ResultDAO.sortResults(results, sortBy, sortOrder);
+            }
             final WebContext ctx = new WebContext(req, resp, getServletContext(), req.getLocale());
             ctx.setVariable("results", results);
+            ctx.setVariable("sessionId", sessionId);
+            ctx.setVariable("order", sortOrder);
             templateEngine.process("/WEB-INF/GetResults.html", ctx, resp.getWriter());
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");
