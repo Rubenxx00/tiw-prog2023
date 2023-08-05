@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Courses</title>
+    <style>
+        .selected {
+            background-color: yellow;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+<a href="/logout">Logout</a>
+<h1>Courses you have enrolled</h1>
+<div th:replace="fragments/CourseTableFragment :: CourseTable"></div>
+<br>
+<h2>Sessions</h2>
+<table border="solid">
+    <tr>
+        <th>Session date</th>
+    </tr>
+    <tr th:each="s : ${sessions}">
+        <!-- link with text s.date -->
+        <td>
+            <a th:href="@{/GetResults(sessionId=${s.idsession})}">
+                <span th:text="${s.date}"></span>
+            </a>
+        </td>
+    </tr>
+    <!-- if sessions is empty, show message-->
+    <tr th:if="${#lists.isEmpty(sessions)}">
+        <td>No sessions found</td>
+    </tr>
+</table>
+</body>
+
+</html>

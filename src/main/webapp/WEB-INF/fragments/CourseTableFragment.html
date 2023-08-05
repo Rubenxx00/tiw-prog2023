@@ -1,0 +1,12 @@
+<!-- CourseTableFragment.html -->
+<table border="solid">
+    <tr>
+        <th>Course ID</th>
+        <th>Title</th>
+    </tr>
+    <tr th:each="course : ${courses}" th:class="${course.idCourse == selectedCourseId ? 'selected' : ''}">
+        <td th:text="${course.idcourse}"></td>
+        <td th:text="${course.title}"></td>
+        <td><a th:href="@{/Home(selected=${course.idcourse})}">Appelli</a></td>
+    </tr>
+</table>

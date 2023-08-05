@@ -35,4 +35,24 @@ public class SessionDAO {
         return sessions;
     }
 
+    public boolean enrollStudent(int sessionId, int studentId) throws SQLException {
+        String query = "INSERT INTO result (student_student_number, session_idsession, grade, state) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, studentId);
+            preparedStatement.setInt(2, sessionId);
+            preparedStatement.setInt(3, 0);
+            preparedStatement.setInt(4, 0);
+            preparedStatement.executeUpdate();
+        }
+        catch (SQLException e) {
+            // check for duplicate entry
+            if (e.getErrorCode() == 1062) {
+                return false;
+            }
+            else {
+                throw new SQLException(e);
+            }
+        }
+        return true;
+    }
 }

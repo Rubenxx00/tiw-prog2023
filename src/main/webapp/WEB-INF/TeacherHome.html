@@ -15,17 +15,7 @@
 <body>
 	<a href="/logout">Logout</a>
 	<h1>Courses</h1>
-	<table border="solid">
-		<tr>
-			<th>Course ID</th>
-			<th>Title</th>
-		</tr>
-		<tr th:each="course : ${courses}" th:class="${course.idCourse == selectedCourseId ? 'selected' : ''}">
-			<td th:text="${course.idcourse}"></td>
-			<td th:text="${course.title}"></td>
-			<td><a th:href="@{/Home(selected=${course.idcourse})}">Appelli</a></td>
-		</tr>
-	</table>
+	<div th:replace="fragments/CourseTableFragment :: CourseTable"></div>
 	<br>
 	<h2>Sessions</h2>
 	<table border="solid">

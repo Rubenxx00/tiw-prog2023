@@ -16,9 +16,11 @@ public class CourseDAO {
         this.connection = connection;
     }
 
+    // default order: title desc
     public List<Course> findCoursesByTeacherId(int teacherId) throws SQLException {
         List<Course> courses = new ArrayList<>();
-        String query = "SELECT * FROM course WHERE teacher = ?";
+        String query = "SELECT * FROM course WHERE teacher = ? " +
+                "ORDER BY title DESC";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, teacherId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -32,7 +34,27 @@ public class CourseDAO {
             }
         }
         return courses;
-    }    
+    }
+    // find courses by student id
+    public List<Course> findCoursesByStudentId(int studentId) throws SQLException {
+        List<Course> courses = new ArrayList<>();
+        String query = "SELECT * FROM course " +
+                "INNER JOIN enroll ON course.idcourse = enrollment.course_idcourse " +
+                "WHERE enroll.student_student_number = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, studentId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Course course = new Course();
+                    course.setIdcourse(resultSet.getInt("idcourse"));
+                    course.setTitle(resultSet.getString("title"));
+                    course.setTeacher(resultSet.getInt("teacher"));
+                    courses.add(course);
+                }
+            }
+        }
+        return courses;
+    }
     // get by id
     public Course getCourseById(int id) throws SQLException {
         Course course = null;
