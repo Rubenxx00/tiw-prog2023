@@ -13,9 +13,21 @@
 </head>
 
 <body>
-<a href="/logout">Logout</a>
+<div>
+  <a th:href="@{/Logout}" style="text-align:right;">Logout</a>
+</div>
 <h1>Courses you have enrolled</h1>
-<div th:replace="fragments/CourseTableFragment :: CourseTable"></div>
+<table border="solid">
+    <tr>
+        <th>Course ID</th>
+        <th>Title</th>
+    </tr>
+    <tr th:each="course : ${courses}" th:class="${course.idCourse == selectedCourseId ? 'selected' : ''}">
+        <td th:text="${course.idcourse}"></td>
+        <td th:text="${course.title}"></td>
+        <td><a th:href="@{/Home(selected=${course.idcourse})}">Appelli</a></td>
+    </tr>
+</table>
 <br>
 <h2>Sessions</h2>
 <table border="solid">
@@ -23,12 +35,12 @@
         <th>Session date</th>
     </tr>
     <tr th:each="s : ${sessions}">
-        <!-- link with text s.date -->
         <td>
-            <a th:href="@{/GetResults(sessionId=${s.idsession})}">
+            <a th:href="@{/GetStudentResult(sessionId=${s.idsession})}">
                 <span th:text="${s.date}"></span>
             </a>
         </td>
+
     </tr>
     <!-- if sessions is empty, show message-->
     <tr th:if="${#lists.isEmpty(sessions)}">

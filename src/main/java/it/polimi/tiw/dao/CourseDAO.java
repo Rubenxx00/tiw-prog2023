@@ -72,4 +72,47 @@ public class CourseDAO {
         }
         return course;
     }
+
+    public List<Course> findEnrolledCoursesByStudentId(int login) {
+        List<Course> courses = new ArrayList<>();
+        String query = "SELECT * FROM course " +
+                "INNER JOIN enroll ON course.idcourse = enroll.course_idcourse " +
+                "WHERE enroll.student_student_number = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, login);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Course course = new Course();
+                    course.setIdcourse(resultSet.getInt("idcourse"));
+                    course.setTitle(resultSet.getString("title"));
+                    course.setTeacher(resultSet.getInt("teacher"));
+                    courses.add(course);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return courses;
+    }
+
+    public Course findCourseBySession(int sessionId) {
+        Course course = null;
+        String query = "SELECT * FROM course " +
+                "INNER JOIN session ON course.idcourse = session.course_idcourse " +
+                "WHERE session.idsession = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, sessionId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    course = new Course();
+                    course.setIdcourse(resultSet.getInt("idcourse"));
+                    course.setTitle(resultSet.getString("title"));
+                    course.setTeacher(resultSet.getInt("teacher"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return course;
+    }
 }

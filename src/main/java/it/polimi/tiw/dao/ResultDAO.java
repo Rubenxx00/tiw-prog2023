@@ -33,7 +33,8 @@ public class ResultDAO {
                             resultSet.getInt("student_student_number"),
                             resultSet.getInt("session_idsession"),
                             resultSet.getInt("grade"),
-                            resultSet.getInt("state")
+                            resultSet.getInt("state"),
+                            resultSet.getBoolean("isRefused")
                     );
                     result.setStudent(studentDAO.getStudentByStudentNumber(result.getStudent_student_number()));
                     results.add(result);
@@ -56,7 +57,8 @@ public class ResultDAO {
                         resultSet.getInt("student_student_number"),
                         resultSet.getInt("session_idsession"),
                         resultSet.getInt("grade"),
-                        resultSet.getInt("state")
+                        resultSet.getInt("state"),
+                        resultSet.getBoolean("isRefused")
                     );
                     result.setStudent(studentDAO.getStudentByStudentNumber(result.getStudent_student_number()));
                 }
@@ -153,6 +155,68 @@ public class ResultDAO {
         }
         if (sortOrder.equals("desc")) {
             Collections.reverse(results);
+        }
+    }
+
+    // update rows in DB to set ResultState to REFUSED
+    public void refuseResult(int sessionId, int studentId) throws SQLException {
+        String query = "UPDATE result SET isRefused = ? WHERE session_idsession = ? AND student_student_number = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setBoolean(1, true);
+            preparedStatement.setInt(2, sessionId);
+            preparedStatement.setInt(3, studentId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // set ResultState.VERBALIZZATO for all results in session
+    public void setResultRecorded(int sessionId) throws SQLException {
+        //begin transaction
+        connection.setAutoCommit(false);
+        try {
+            String query = "UPDATE result SET state = ? WHERE session_idsession = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setInt(1, ResultState.VERBALIZZATO.getValue());
+                preparedStatement.setInt(2, sessionId);
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw e;
+            }
+            // insert new row in report table
+            query = "INSERT INTO report (session_idsession) VALUES (?)";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setInt(1, sessionId);
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw e;
+            }
+            //commit transaction
+            connection.commit();
+        } catch (SQLException e) {
+            //rollback transaction
+            connection.rollback();
+            throw e;
+        } finally {
+            connection.setAutoCommit(true);
+        }
+    }
+
+    public boolean hasNotPublishedResults(int sessionId) throws SQLException {
+        String query = "SELECT * FROM result WHERE session_idsession = ? AND state < ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, sessionId);
+            preparedStatement.setInt(2, ResultState.PUBBLICATO.getValue());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 }

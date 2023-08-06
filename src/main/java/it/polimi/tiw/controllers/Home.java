@@ -77,6 +77,24 @@ public class Home extends HttpServlet {
 			String path = "/WEB-INF/StudentHome.html";
 			ServletContext servletContext = getServletContext();
 			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+				CourseDAO courseDAO = new CourseDAO(connection);
+				List<Course> courses = courseDAO.findEnrolledCoursesByStudentId(user.getLogin());
+
+				// Get the selected course ID from the "selected" parameter in the URL
+				Integer selectedCourseId = NumberUtils.createInteger(request.getParameter("selected"));
+
+				// Use the first course as fallback if no course is selected
+				if (selectedCourseId == null && !courses.isEmpty()) {
+					selectedCourseId = courses.get(0).getIdcourse();
+				}
+
+				if (selectedCourseId != null) {
+					// Load sessions for selected course
+					SessionDAO sessionDAO = new SessionDAO(connection);
+					ctx.setVariable("sessions", sessionDAO.findEnrolledSessionsByStudentId(user.getLogin(), selectedCourseId));
+				}
+				ctx.setVariable("courses", courses);
+				ctx.setVariable("selectedCourseId", selectedCourseId);
 			templateEngine.process(path, ctx, response.getWriter());
 		}
 		} catch (SQLException e) {

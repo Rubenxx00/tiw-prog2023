@@ -5,8 +5,8 @@
     <title>Edit result</title>
 </head>
 <body>
-<div align="right">
-  <a th:href="@{/Logout}">Logout</a>
+<div>
+  <a th:href="@{/Logout}" style="text-align:right;">Logout</a>
 </div>
 <!--vertical table with student info -->
 
@@ -40,7 +40,7 @@
     <select id="grade" name="grade">
         <option th:each="i : ${#numbers.sequence(1, 31)}"
                 th:value="${i}"
-                th:text="${i}"
+                th:text="${i == 31 ? '30L' : i}"
                 th:selected="${i == result.grade}">
         </option>
     </select>

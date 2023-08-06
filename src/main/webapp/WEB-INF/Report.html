@@ -7,7 +7,27 @@
 </head>
 
 <body>
-<a href="/logout">Logout</a>
+<div>
+  <a th:href="@{/Logout}" style="text-align:right;">Logout</a>
+</div>
 <a th:href="@{/Home}">Home</a>
-<h1>Verbale</h1>
+<h1>Verbale numero <span th:text="${report.idreport}"></span></h1>
+<p>Data verbale: <span th:text="${report.date}"></span></p>
+<p>Data appello: <span th:text="${report.session.date}"></span></p>
+<table>
+    <tr>
+        <th>Student ID</th>
+        <th>Name</th>
+        <th>Surname</th>
+        <th>Grade</th>
+        <th>State</th>
+    </tr>
+    <tr th:each="r : ${rows}">
+        <td th:text="${r.student_student_number}"></td>
+        <td th:text="${r.student.name}"></td>
+        <td th:text="${r.student.surname}"></td>
+        <td th:text="${r.getGradeString()}"></td>
+        <td th:text="${r.state.getDescription()}"></td>
+    </tr>
+</table>
 <p></p>

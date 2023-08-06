@@ -7,7 +7,9 @@
 </head>
 
 <body>
-<a href="/logout">Logout</a>
+<div>
+  <a th:href="@{/Logout}" style="text-align:right;">Logout</a>
+</div>
 <h1>Courses</h1>
 <!--matricola, cognome e nome, email, corso di laurea, voto e stato di valutazione.-->
 <table border="solid">
@@ -26,10 +28,10 @@
         <td th:text="${r.student.surname}"></td>
         <td th:text="${r.student.email}"></td>
         <td th:text="${r.student.school}"></td>
-        <td th:text="${r.grade}"></td>
-        <td th:text="${r.state}"></td>
+        <td th:text="${r.getGradeString()}"></td>
+        <td th:text="${r.state.getDescription()}"></td>
         <!-- button to navigate to /EditResult for clicked row identified by student id and session id-->
-        <td>
+        <td th:if="${r.isEditableByTeacher()}">
             <form action="#" th:action="@{/EditResult}" method="GET">
                 <input type="hidden" name="studentId" th:value="${r.student_student_number}" />
                 <input type="hidden" name="sessionId" th:value="${sessionId}" />
@@ -40,8 +42,9 @@
 </table>
 <form action="#" th:action="@{/PostResults}" method="POST">
     <input type="hidden" name="sessionId" th:value="${sessionId}" />
-    <input type="submit" name="submit" value="Publish" />
-    <input type="submit" name="submit" value="Post" />
+    <!-- if not published, show publish button -->
+    <input th:unless="${arePublished}" type="submit" name="submit" value="Publish" />
+    <input th:if="${arePublished}"type="submit" name="submit" value="Record" />
 </form>
 </body>
 

@@ -5,6 +5,7 @@ public class Result {
     private int session_idsession;
     private Integer grade;
     private ResultState state;
+    private boolean isRefused;
     private Student student;
 
     // Constructors, getters, setters, and other methods
@@ -13,11 +14,12 @@ public class Result {
     public Result() {}
 
     // Constructor with all fields
-    public Result(int student_student_number, int session_idsession, Integer grade, int state) {
+    public Result(int student_student_number, int session_idsession, Integer grade, int state, boolean isRefused) {
         this.student_student_number = student_student_number;
         this.session_idsession = session_idsession;
         this.grade = grade;
         this.state = ResultState.fromValue(state);
+        this.isRefused = isRefused;
     }
 
     // Getters and setters for each property
@@ -57,5 +59,32 @@ public class Result {
 
     public void setStudent(Student student) { this.student = student; }
 
+    // Other methods
+    public boolean isEditableByTeacher() {
+        return this.state.getValue() <= ResultState.INSERITO.getValue();
+    }
+
+    public boolean isEditableByStudent() {
+        return this.state.getValue() == ResultState.PUBBLICATO.getValue();
+    }
+    public boolean isRefused() {
+        return isRefused;
+    }
+
+    public void setRefused(boolean refused) {
+        isRefused = refused;
+    }
+
+    public String getGradeString() {
+        if (isRefused) {
+            return "Rifiutato";
+        } else if (grade == 0) {
+            return "N/A";
+        } else if (grade == 31) {
+            return "30 e Lode";
+        } else {
+            return grade.toString();
+        }
+    }
 }
 

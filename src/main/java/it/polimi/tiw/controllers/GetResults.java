@@ -63,10 +63,20 @@ public class GetResults extends HttpServlet {
             ctx.setVariable("results", results);
             ctx.setVariable("sessionId", sessionId);
             ctx.setVariable("order", sortOrder);
+            ctx.setVariable("arePublished", arePublished(results));
             templateEngine.process("/WEB-INF/GetResults.html", ctx, resp.getWriter());
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");
         }
+    }
+
+    private boolean arePublished(List<Result> results) {
+        for(Result result : results){
+            if(result.isEditableByTeacher()){
+                return false;
+            }
+        }
+        return true;
     }
 
 }

@@ -1,5 +1,6 @@
 package it.polimi.tiw.controllers;
 
+import it.polimi.tiw.dao.ReportDAO;
 import it.polimi.tiw.dao.ResultDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 import it.polimi.tiw.utils.Utils;
@@ -49,24 +50,34 @@ public class PostResults extends HttpServlet {
         // check submit value
 
         try {
-            /* TODO: unnecessary?
-            if(resultDAO.hasNullResults(sessionId)){
-                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Some results are missing");
-                return;
-            }
-             */
             if (req.getParameter("submit").equals("Publish")) {
+                // check if all results are not null
+                if(resultDAO.hasNullResults(sessionId)){
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Some results are missing yet");
+                    return;
+                }
                 resultDAO.setResultPublished(sessionId);
                 resp.sendRedirect(getServletContext().getContextPath() + "/GetResults?sessionId=" + sessionId);
-            } else if (req.getParameter("submit").equals("Post")) {
-                // TODO
-                final WebContext ctx = new WebContext(req, resp, getServletContext(), req.getLocale());
+            } else if (req.getParameter("submit").equals("Record")) {
+                // if report is already recorded, redirect to results page
+                ReportDAO reportDAO = new ReportDAO(connection);
+                if(reportDAO.isResultRecorded(sessionId)){
+                    resp.sendRedirect(getServletContext().getContextPath() + "/GetReport?sessionId=" + sessionId);
+                    return;
+                }
+                // else, record report
 
-                templateEngine.process("/WEB-INF/Report.html", ctx, resp.getWriter());
+                // check if all results are published
+                if(resultDAO.hasNotPublishedResults(sessionId)){
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Results have not been published yet");
+                    return;
+                }
+                resultDAO.setResultRecorded(sessionId);
+                resp.sendRedirect(getServletContext().getContextPath() + "/GetReport?sessionId=" + sessionId);
             }
             } catch (Exception e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");
-            return;
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");
+                return;
         }
     }
 }

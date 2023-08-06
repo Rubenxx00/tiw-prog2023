@@ -55,4 +55,49 @@ public class SessionDAO {
         }
         return true;
     }
+
+    // find by join
+    public List<Session> findEnrolledSessionsByStudentId(int login, int selectedCourseId) {
+        List<Session> sessions = new ArrayList<>();
+        String query = "SELECT * FROM session " +
+                "INNER JOIN result ON session.idsession = result.session_idsession " +
+                "WHERE result.student_student_number = ? AND session.course_idcourse = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, login);
+            preparedStatement.setInt(2, selectedCourseId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Session session = new Session();
+                    session.setIdsession(resultSet.getInt("idsession"));
+                    session.setDate(resultSet.getDate("date"));
+                    session.setCourse_idcourse(resultSet.getInt("course_idcourse"));
+                    sessions.add(session);
+                }
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sessions;
+    }
+
+    public Session getSessionById(int sessionId) {
+        Session session = null;
+        String query = "SELECT * FROM session WHERE idsession = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, sessionId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    session = new Session();
+                    session.setIdsession(resultSet.getInt("idsession"));
+                    session.setDate(resultSet.getDate("date"));
+                    session.setCourse_idcourse(resultSet.getInt("course_idcourse"));
+                }
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return session;
+    }
 }
