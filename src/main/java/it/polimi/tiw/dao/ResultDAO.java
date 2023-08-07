@@ -3,6 +3,7 @@ package it.polimi.tiw.dao;
 import it.polimi.tiw.InvalidValueException;
 import it.polimi.tiw.beans.Result;
 import it.polimi.tiw.beans.ResultState;
+import it.polimi.tiw.beans.Student;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,25 +19,49 @@ public class ResultDAO {
     public ResultDAO(Connection connection) {
         this.connection = connection;
     }
-    // get all results for a session
+
     public List<Result> getResultsBySessionId(int sessionId) throws SQLException {
+        return this.getResultsBySessionId(sessionId, null);
+    }
+
+    public List<Result> getResultsBySessionId(int sessionId, String sortBy, String sortOrder) throws SQLException {
+        String query = null;
+        if(sortBy != null && !sortBy.isEmpty()){
+            query = this.sortResults(sortBy, sortOrder);
+        }
+        return this.getResultsBySessionId(sessionId, query);
+    }
+
+
+    // get all results for a session
+    private List<Result> getResultsBySessionId(int sessionId, String orderBy) throws SQLException {
         StudentDAO studentDAO = new StudentDAO(connection);
         List<Result> results = new ArrayList<>();
 
-        String query = "SELECT * FROM result WHERE session_idsession = ?";
+        String query = "SELECT * FROM result INNER JOIN student ON student.student_number = result.student_student_number INNER JOIN mydb.user u on student.student_number = u.login" +
+                " WHERE session_idsession = ?";
+
+        if(orderBy != null && !orderBy.isEmpty())
+            query += orderBy;
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, sessionId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     Result result = new Result(
-                            resultSet.getInt("student_student_number"),
-                            resultSet.getInt("session_idsession"),
-                            resultSet.getInt("grade"),
-                            resultSet.getInt("state"),
-                            resultSet.getBoolean("isRefused")
+                        resultSet.getInt("student_student_number"),
+                        resultSet.getInt("session_idsession"),
+                        resultSet.getInt("grade"),
+                        resultSet.getInt("state"),
+                        resultSet.getBoolean("isRefused")
                     );
-                    result.setStudent(studentDAO.getStudentByStudentNumber(result.getStudent_student_number()));
+                    result.setStudent(new Student(
+                        resultSet.getInt("student_number"),
+                        resultSet.getString("name"),
+                        resultSet.getString("surname"),
+                        resultSet.getString("school"),
+                        resultSet.getString("email")
+                    ));
                     results.add(result);
                 }
             }
@@ -127,35 +152,38 @@ public class ResultDAO {
         }
     }
 
-    public static void sortResults(List<Result> results, String sortBy, String sortOrder) {
+    private String sortResults(String sortBy, String sortOrder) {
+        String orderBy = " ORDER BY ";
         switch (sortBy) {
             case "studentId":
-                results.sort(Comparator.comparing(Result::getStudent_student_number));
+                orderBy += "student_student_number";
                 break;
             case "grade":
-                results.sort(Comparator.comparing(Result::getGrade));
+                orderBy += "grade";
                 break;
             case "name":
-                results.sort(Comparator.comparing(o -> o.getStudent().getName()));
+                orderBy += "name";
                 break;
             case "surname":
-                results.sort(Comparator.comparing(o -> o.getStudent().getSurname()));
+                orderBy += "surname";
                 break;
             case "email":
-                results.sort(Comparator.comparing(o -> o.getStudent().getEmail()));
+                orderBy += "email";
                 break;
             case "school":
-                results.sort(Comparator.comparing(o -> o.getStudent().getSchool()));
+                orderBy += "school";
                 break;
             case "state":
-                results.sort(Comparator.comparing(Result::getState));
+                orderBy += "state";
                 break;
             default:
+                orderBy = null;
                 break;
         }
-        if (sortOrder.equals("desc")) {
-            Collections.reverse(results);
+        if (orderBy != null && sortOrder.equals("desc")) {
+            orderBy += " DESC";
         }
+        return orderBy;
     }
 
     // update rows in DB to set ResultState to REFUSED

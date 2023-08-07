@@ -16,6 +16,13 @@ public class Student extends User {
         this.school = school;
     }
 
+    // Constructor with all fields
+    public Student(int student_number,  String name, String surname, String school, String email) {
+        super(student_number, name, surname, "", "student", email);
+        this.student_number = student_number;
+        this.school = school;
+    }
+
     // Getters and setters for each property
     public int getStudent_number() {
         return student_number;

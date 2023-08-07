@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import it.polimi.tiw.beans.Result;
 import it.polimi.tiw.utils.Utils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -47,18 +48,15 @@ public class GetResults extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer sessionId = Utils.tryParse(req.getParameter("sessionId"));
-        String sortBy = req.getParameter("sort");
-        String sortOrder = req.getParameter("order");
+        String sortBy = StringEscapeUtils.escapeJava(req.getParameter("sort"));
+        String sortOrder = StringEscapeUtils.escapeJava(req.getParameter("order"));
         if (sessionId == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing session id");
             return;
         }
         try {
             ResultDAO resultDAO = new ResultDAO(connection);
-            List<Result> results = resultDAO.getResultsBySessionId(sessionId);
-            if(sortBy != null){
-               ResultDAO.sortResults(results, sortBy, sortOrder);
-            }
+            List<Result> results = resultDAO.getResultsBySessionId(sessionId, sortBy, sortOrder);
             final WebContext ctx = new WebContext(req, resp, getServletContext(), req.getLocale());
             ctx.setVariable("results", results);
             ctx.setVariable("sessionId", sessionId);
