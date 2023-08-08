@@ -3,16 +3,12 @@ package it.polimi.tiw.beans;
 public class Course {
     private int idcourse;
     private String title;
-    private int teacher;
+    private int teacher_idteacher;
+    private Teacher teacher;
 
     public Course() {
     }
 
-    public Course(int idcourse, String title, int teacher) {
-        this.idcourse = idcourse;
-        this.title = title;
-        this.teacher = teacher;
-    }
 
     public int getIdcourse() {
         return idcourse;
@@ -30,11 +26,19 @@ public class Course {
         this.title = title;
     }
 
-    public int getTeacher() {
+    public int getTeacher_idteacher() {
+        return teacher_idteacher;
+    }
+
+    public void setTeacher_idteacher(int teacher_idteacher) {
+        this.teacher_idteacher = teacher_idteacher;
+    }
+
+    public Teacher getTeacher() {
         return teacher;
     }
 
-    public void setTeacher(int teacher) {
+    public void setTeacher(Teacher teacher) {
         this.teacher = teacher;
     }
 

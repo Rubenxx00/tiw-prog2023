@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.polimi.tiw.beans.Course;
+import it.polimi.tiw.beans.Teacher;
 
 public class CourseDAO {
     private final Connection connection;
@@ -19,7 +20,9 @@ public class CourseDAO {
     // default order: title desc
     public List<Course> findCoursesByTeacherId(int teacherId) throws SQLException {
         List<Course> courses = new ArrayList<>();
-        String query = "SELECT * FROM course WHERE teacher = ? " +
+        String query = "SELECT * FROM course " +
+                "INNER JOIN user ON course.teacher = user.login " +
+                "WHERE teacher = ? " +
                 "ORDER BY title DESC";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, teacherId);
@@ -28,7 +31,13 @@ public class CourseDAO {
                     Course course = new Course();
                     course.setIdcourse(resultSet.getInt("idcourse"));
                     course.setTitle(resultSet.getString("title"));
-                    course.setTeacher(resultSet.getInt("teacher"));
+                    course.setTeacher_idteacher(resultSet.getInt("teacher"));
+                    course.setTeacher(new Teacher(
+                            resultSet.getInt("login"),
+                            resultSet.getString("name"),
+                            resultSet.getString("surname"),
+                            resultSet.getString("email")
+                    ));
                     courses.add(course);
                 }
             }
@@ -48,7 +57,7 @@ public class CourseDAO {
                     Course course = new Course();
                     course.setIdcourse(resultSet.getInt("idcourse"));
                     course.setTitle(resultSet.getString("title"));
-                    course.setTeacher(resultSet.getInt("teacher"));
+                    course.setTeacher_idteacher(resultSet.getInt("teacher"));
                     courses.add(course);
                 }
             }
@@ -66,7 +75,7 @@ public class CourseDAO {
                     course = new Course();
                     course.setIdcourse(resultSet.getInt("idcourse"));
                     course.setTitle(resultSet.getString("title"));
-                    course.setTeacher(resultSet.getInt("teacher"));
+                    course.setTeacher_idteacher(resultSet.getInt("teacher"));
                 }
             }
         }
@@ -77,7 +86,9 @@ public class CourseDAO {
         List<Course> courses = new ArrayList<>();
         String query = "SELECT * FROM course " +
                 "INNER JOIN enroll ON course.idcourse = enroll.course_idcourse " +
-                "WHERE enroll.student_student_number = ?";
+                "INNER JOIN user ON course.teacher = user.login " +
+                "WHERE enroll.student_student_number = ?" +
+                "ORDER BY title DESC";;
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, login);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -85,7 +96,13 @@ public class CourseDAO {
                     Course course = new Course();
                     course.setIdcourse(resultSet.getInt("idcourse"));
                     course.setTitle(resultSet.getString("title"));
-                    course.setTeacher(resultSet.getInt("teacher"));
+                    course.setTeacher_idteacher(resultSet.getInt("teacher"));
+                    course.setTeacher(new Teacher(
+                            resultSet.getInt("login"),
+                            resultSet.getString("name"),
+                            resultSet.getString("surname"),
+                            resultSet.getString("email")
+                    ));
                     courses.add(course);
                 }
             }
@@ -107,7 +124,7 @@ public class CourseDAO {
                     course = new Course();
                     course.setIdcourse(resultSet.getInt("idcourse"));
                     course.setTitle(resultSet.getString("title"));
-                    course.setTeacher(resultSet.getInt("teacher"));
+                    course.setTeacher_idteacher(resultSet.getInt("teacher"));
                 }
             }
         } catch (SQLException e) {

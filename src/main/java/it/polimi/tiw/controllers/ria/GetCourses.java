@@ -23,7 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/GetCourses")
+@WebServlet("/GetCoursesRIA")
 public class GetCourses extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private Connection connection = null;
@@ -35,52 +35,33 @@ public class GetCourses extends HttpServlet {
     public void init() throws ServletException {
         ServletContext ctx = getServletContext();
         connection = ConnectionHandler.getConnection(ctx);
-        ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(ctx);
-        templateResolver.setTemplateMode(TemplateMode.HTML);
-        this.templateEngine = new TemplateEngine();
-        this.templateEngine.setTemplateResolver(templateResolver);
-        templateResolver.setSuffix(".html");
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     		throws ServletException, IOException {
         User user = (User) request.getSession().getAttribute("currentUser");
         try {
+            CourseDAO courseDAO = new CourseDAO(connection);
+            List<Course> courses = null;
             if (user.getRole().equals("teacher")) {
-                CourseDAO courseDAO = new CourseDAO(connection);
-                List<Course> courses = courseDAO.findCoursesByTeacherId(user.getLogin());
-                // send out JSON
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write(new Gson().toJson(courses));
+                courses = courseDAO.findCoursesByTeacherId(user.getLogin());
             } else {
-                String path = "/WEB-INF/StudentHome.html";
-                ServletContext servletContext = getServletContext();
-                final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-                CourseDAO courseDAO = new CourseDAO(connection);
-                List<Course> courses = courseDAO.findEnrolledCoursesByStudentId(user.getLogin());
-
-                // Get the selected course ID from the "selected" parameter in the URL
-                Integer selectedCourseId = Utils.tryParse(request.getParameter("selected"));
-
-                // Use the first course as fallback if no course is selected
-                if (selectedCourseId == null && !courses.isEmpty()) {
-                    selectedCourseId = courses.get(0).getIdcourse();
-                }
-
-                if (selectedCourseId != null) {
-                    // Load sessions for selected course
-                    SessionDAO sessionDAO = new SessionDAO(connection);
-                    ctx.setVariable("sessions", sessionDAO.findEnrolledSessionsByStudentId(user.getLogin(), selectedCourseId));
-                }
-                ctx.setVariable("courses", courses);
-                ctx.setVariable("selectedCourseId", selectedCourseId);
-                templateEngine.process(path, ctx, response.getWriter());
+                courses = courseDAO.findEnrolledCoursesByStudentId(user.getLogin());
             }
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(new Gson().toJson(courses));
         } catch (SQLException e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");
         }
+    }
 
+    public void destroy() {
+        try {
+            ConnectionHandler.closeConnection(connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }

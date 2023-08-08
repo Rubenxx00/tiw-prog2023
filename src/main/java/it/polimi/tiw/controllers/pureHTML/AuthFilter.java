@@ -1,4 +1,4 @@
-package it.polimi.tiw.controllers;
+package it.polimi.tiw.controllers.pureHTML;
 import it.polimi.tiw.beans.User;
 
 import javax.servlet.*;
@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/Home", "/GetSessions"}) // Apply the filter to both servlets
+@WebFilter(urlPatterns = {"/Home", "/GetSessions"})
 public class AuthFilter implements Filter {
     private FilterConfig filterConfig;
 

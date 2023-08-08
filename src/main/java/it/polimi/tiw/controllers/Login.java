@@ -50,19 +50,15 @@ public class Login extends HttpServlet {
 		// obtain and escape params
 		String login = null;
 		String pwd = null;
-		
-		try {
-			login = StringEscapeUtils.escapeJava(request.getParameter("login"));
-			pwd = StringEscapeUtils.escapeJava(request.getParameter("pwd"));
-			
-			if (login == null || pwd == null || login.isBlank() || pwd.isBlank()) {
-				throw new Exception("Missing or empty credential value");
-			}
 
-		} catch (Exception e) {
+		login = StringEscapeUtils.escapeJava(request.getParameter("login"));
+		pwd = StringEscapeUtils.escapeJava(request.getParameter("pwd"));
+
+		if (login == null || pwd == null || login.isBlank() || pwd.isBlank()) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing credential value");
 			return;
 		}
+
 
 		User user = null;
 
@@ -84,12 +80,16 @@ public class Login extends HttpServlet {
 		if (user == null) {
 			final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 			ctx.setVariable("errorMsg", "Incorrect username or password");
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			templateEngine.process("index.html", ctx, response.getWriter());
 		} else {
 			HttpSession session = request.getSession();
 			session.setAttribute("currentUser", user);
 
-			request.getSession().setAttribute("currentUser", user);
+			// send role to client in header
+			response.setHeader("role", user.getRole());
+			response.setHeader("login", String.valueOf(user.getLogin()));
+
 			path = getServletContext().getContextPath() + "/Home";
 			response.sendRedirect(path);
 		}
