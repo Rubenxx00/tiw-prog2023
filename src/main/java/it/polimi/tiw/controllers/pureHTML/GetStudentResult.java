@@ -1,4 +1,4 @@
-package it.polimi.tiw.controllers;
+package it.polimi.tiw.controllers.pureHTML;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;

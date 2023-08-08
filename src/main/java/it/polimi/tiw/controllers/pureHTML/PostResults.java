@@ -1,4 +1,4 @@
-package it.polimi.tiw.controllers;
+package it.polimi.tiw.controllers.pureHTML;
 
 import it.polimi.tiw.dao.ReportDAO;
 import it.polimi.tiw.dao.ResultDAO;

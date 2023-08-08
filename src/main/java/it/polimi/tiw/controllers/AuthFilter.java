@@ -29,6 +29,12 @@ public class AuthFilter implements Filter {
             httpResponse.sendRedirect(filterConfig.getServletContext().getContextPath() + "/index.html");
         }
     }
+
+    @Override
+    public void destroy() {
+
+    }
+
     private boolean isUserLoggedIn(HttpServletRequest request) {
         return request.getSession().getAttribute("currentUser") != null;
     }

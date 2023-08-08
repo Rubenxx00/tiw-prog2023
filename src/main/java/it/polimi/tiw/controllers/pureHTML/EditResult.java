@@ -1,4 +1,4 @@
-package it.polimi.tiw.controllers;
+package it.polimi.tiw.controllers.pureHTML;
 
 import it.polimi.tiw.InvalidValueException;
 import it.polimi.tiw.beans.Result;
