@@ -10,12 +10,11 @@ $(document).ready(function() {
         // Make the AJAX POST request
         $.ajax({
             type: "POST",
-            url: apiUrl + "Login",
+            url: apiUrl + "api/login",
             data: formData,
             success: function(response) {
                 //get role and login from headers
-                window.sessionStorage.setItem('role', response.role);
-                window.sessionStorage.setItem('login', response.login);
+                window.sessionStorage.setItem('user', JSON.stringify(response));
                 // Redirect the user to the app page
                 window.location.href = "app.html";
             },

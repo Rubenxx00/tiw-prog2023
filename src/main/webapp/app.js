@@ -1,14 +1,15 @@
 {
     const apiUrl = "http://localhost:8081/exam_war_exploded/";
-    let courseList, sessionList, pageOrchestrator;
-
+    let courseList, sessionList, resultInfo, pageOrchestrator;
+    let user;
     pageOrchestrator = new PageOrchestrator();
 
     $(document).ready(function () {
-        if (!window.sessionStorage.getItem('login')) {
+        if (!window.sessionStorage.getItem('user')) {
             window.location.href = "indexjs.html";
         }
         else {
+            user = JSON.parse(window.sessionStorage.getItem('user'));
             pageOrchestrator.start();
             pageOrchestrator.refresh();
         }
@@ -118,8 +119,13 @@
                 tr.on("click", function () {
                     tr.addClass("selected");
                     tr.siblings().removeClass("selected");
-                    resultList.body.empty();
-                    resultList.show(session.idsession);
+                    if (role == "teacher") {
+                        resultList.body.empty();
+                        resultList.show(session.idsession);
+                    }
+                    else {
+                        resultInfo.show(session.idsession);
+                    }
                 });
                 td = $("<td></td>").text(session.date);
                 tr.append(td);
@@ -195,15 +201,72 @@
         }
     }
 
+    // vertical table with student info
+    function ResultInfo(_alert, _container, _button) {
+        this.alert = _alert;
+        this.container = _container;
+        this.button = _button;
+
+        this.init = function () {
+            this.container.hide();
+            this.button.hide();
+            this.button.on("click", function () {
+                // TODO
+            }
+            );
+        }
+
+        this.show = function (sessionId) {
+            var self = this;
+            $.ajax({
+                url: apiUrl + "GetStudentResultRIA",
+                data: { sessionId: sessionId },
+                type: "GET",
+                success: function (data, state) {
+                    pageOrchestrator.refresh();
+                    self.update(data);
+                },
+                error: function (data, state) {
+                    handle401or403(data);
+                    self.alert.text("Error while retrieving results");
+                    self.alert.show();
+                }
+            });
+        }
+
+        this.update = function (result) {
+            if (result.state == "INSERITO") {
+                this.button.show();
+            }
+            var tds = this.container.find('table.table td');
+
+            tds.eq(0).text(result.student.student_number); 
+            tds.eq(1).text(result.student.name); 
+            tds.eq(2).text(result.student.surname); 
+            tds.eq(3).text(result.student.email); 
+            tds.eq(4).text(result.student.school); 
+            tds.eq(5).text(result.state); 
+            tds.eq(6).text(result.grade); 
+            this.container.show();
+
+        }
+    }
+
+
     function PageOrchestrator() {
         var alert = $("#alert");
         this.start = function () {
+            $("#username").text(user.name + " " + user.surname);
+            $("#role").text(user.role);
+
             courseList = new CourseList($("#alert"), $("#course-table"), $("#course-table-body"));
             sessionList = new SessionList($("#alert"), $("#session-table"), $("#session-table-body"));
             resultList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"));
+            resultInfo = new ResultInfo($("#alert"), $("#resultInfo-container"), $("#reject-btn"));
             courseList.init();
             sessionList.init();
             resultList.init();
+            resultInfo.init();
 
             courseList.show(
                 function () { courseList.autoselect(); }

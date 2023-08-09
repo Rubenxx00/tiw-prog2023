@@ -87,7 +87,7 @@ public class CourseDAO {
         String query = "SELECT * FROM course " +
                 "INNER JOIN enroll ON course.idcourse = enroll.course_idcourse " +
                 "INNER JOIN user ON course.teacher = user.login " +
-                "WHERE enroll.student_student_number = ?" +
+                "WHERE enroll.student_student_number = ? " +
                 "ORDER BY title DESC";;
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, login);
