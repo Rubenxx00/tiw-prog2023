@@ -79,6 +79,7 @@ public class Login extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("currentUser", user);
 
+            response.setHeader("Location", "/indexjs.html");
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             String json = new Gson().toJson(user);

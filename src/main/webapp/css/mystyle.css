@@ -5,3 +5,6 @@ table, th, tr {
   background-color: yellow;
   font-weight: bold;
 }
+th.sortable {
+	cursor: pointer;
+}

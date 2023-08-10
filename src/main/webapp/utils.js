@@ -1,19 +1,11 @@
-/**
- * AJAX call management
- */
 
-function makeCall(method, url, formElement, cback, reset) {
-    var req = new XMLHttpRequest(); // visible by closure
-    req.onreadystatechange = function() {
-        cback(req)
-    }; // closure
-    req.open(method, url);
-    if (formElement == null) {
-        req.send();
-    } else {
-        req.send(new FormData(formElement));
-    }
-    if (formElement != null && reset) {
-        formElement.reset();
-    }
-}
+
+function compare(v1, v2) {
+      // If non numeric value
+      if (v1 === '' || v2 === '' || isNaN(v1) || isNaN(v2)) {
+        return v1.toString().localeCompare(v2); // lexical comparison
+      }
+  
+      // If numeric value
+      return v1 - v2; // v1 greater than v2 --> true
+  }

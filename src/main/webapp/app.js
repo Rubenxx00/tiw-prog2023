@@ -1,6 +1,6 @@
 {
     const apiUrl = "http://localhost:8081/exam_war_exploded/";
-    let courseList, sessionList, resultInfo, pageOrchestrator;
+    let courseList, sessionList, resultInfo, pageOrchestrator, resultList;
     let user;
     pageOrchestrator = new PageOrchestrator();
 
@@ -19,7 +19,7 @@
         if (data.status == 401 || data.status == 403) {
             window.sessionStorage.removeItem('login');
             window.sessionStorage.removeItem('role');
-            window.location.href = data.header("Location");
+            window.location.href = data.getResponseHeader("Location");
         }
     }
 
@@ -96,10 +96,10 @@
                 data: { courseId: courseId },
                 type: "GET",
                 success: function (data, state) {
+                    pageOrchestrator.refresh();
                     if (data.length == 0) {
                         self.alert.text("No sessions found");
                         self.alert.show();
-                        return;
                     }
                     self.update(data);
                 },
@@ -119,8 +119,7 @@
                 tr.on("click", function () {
                     tr.addClass("selected");
                     tr.siblings().removeClass("selected");
-                    if (role == "teacher") {
-                        resultList.body.empty();
+                    if (user.role == "teacher") {
                         resultList.show(session.idsession);
                     }
                     else {
@@ -134,6 +133,10 @@
             this.listcontainer.show();
         }
 
+        this.reset = function () {
+            this.listcontainerbody.empty();
+            this.listcontainer.hide();
+        }
     }
 
     function ResultsList(_alert, _container, _body) {
@@ -148,8 +151,8 @@
                 let td = $("<td></td>").text("No results found");
                 tr.append(td);
                 this.body.append(tr);
-                return;
             }
+
             for (let i = 0; i < retrievedList.length; i++) {
                 let exam = retrievedList[i];
                 let tr = $("<tr></tr>");
@@ -171,6 +174,7 @@
 
                 this.body.append(tr);
             }
+            
             this.container.show();
         }
 
@@ -194,9 +198,14 @@
 
         this.init = function () {
             this.container.hide();
+            // TODO: better sorting
+            $('.sortable').click(function() {
+                sortTable($(this).attr('id'));
+            });
         }
 
         this.reset = function () {
+            this.container.hide();
             this.body.empty();
         }
     }
@@ -209,7 +218,6 @@
 
         this.init = function () {
             this.container.hide();
-            this.button.hide();
             this.button.on("click", function () {
                 // TODO
             }
@@ -240,15 +248,19 @@
             }
             var tds = this.container.find('table.table td');
 
-            tds.eq(0).text(result.student.student_number); 
-            tds.eq(1).text(result.student.name); 
-            tds.eq(2).text(result.student.surname); 
-            tds.eq(3).text(result.student.email); 
-            tds.eq(4).text(result.student.school); 
-            tds.eq(5).text(result.state); 
-            tds.eq(6).text(result.grade); 
+            tds.eq(0).text(result.student.student_number);
+            tds.eq(1).text(result.student.name);
+            tds.eq(2).text(result.student.surname);
+            tds.eq(3).text(result.student.email);
+            tds.eq(4).text(result.student.school);
+            tds.eq(5).text(result.state);
+            tds.eq(6).text(result.grade);
             this.container.show();
 
+        }
+
+        this.reset = function () {
+            this.container.hide();
         }
     }
 
@@ -274,6 +286,8 @@
         }
 
         this.refresh = function () {
+            resultList.reset();
+            resultInfo.reset();
             alert.text("");
             alert.hide();
         }
