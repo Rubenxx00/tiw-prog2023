@@ -1,6 +1,26 @@
 {
+    // TODO: move to other file
+    function buildTableRow(exam) {
+        let tr = $("<tr></tr>");
+        // Add columns
+        let td = $("<td></td>").text(exam.student.student_number);
+        tr.append(td);
+        td = $("<td></td>").text(exam.student.name);
+        tr.append(td);
+        td = $("<td></td>").text(exam.student.surname);
+        tr.append(td);
+        td = $("<td></td>").text(exam.student.email);
+        tr.append(td);
+        td = $("<td></td>").text(exam.student.school);
+        tr.append(td);
+        td = $("<td></td>").text(exam.grade);
+        tr.append(td);
+        td = $("<td></td>").text(exam.state);
+        tr.append(td);
+        return tr;
+      }
     const apiUrl = "http://localhost:8081/exam_war_exploded/";
-    let courseList, sessionList, resultInfo, pageOrchestrator, resultList;
+    let courseList, sessionList, resultInfo, pageOrchestrator, resultList, modalUpdate;
     let user;
     pageOrchestrator = new PageOrchestrator();
 
@@ -139,12 +159,15 @@
         }
     }
 
-    function ResultsList(_alert, _container, _body) {
+    function ResultsList(_alert, _container, _body, _insertButton) {
         this.alert = _alert;
         this.container = _container;
         this.body = _body;
+        this.insertButton = _insertButton;
+        this.resultList = [];
 
         this.update = function (retrievedList) {
+            resultList = retrievedList;
             this.reset();
             if (retrievedList.length == 0) {
                 let tr = $("<tr></tr>");
@@ -155,31 +178,16 @@
 
             for (let i = 0; i < retrievedList.length; i++) {
                 let exam = retrievedList[i];
-                let tr = $("<tr></tr>");
-                // Add columns
-                let td = $("<td></td>").text(exam.student.student_number);
-                tr.append(td);
-                td = $("<td></td>").text(exam.student.name);
-                tr.append(td);
-                td = $("<td></td>").text(exam.student.surname);
-                tr.append(td);
-                td = $("<td></td>").text(exam.student.email);
-                tr.append(td);
-                td = $("<td></td>").text(exam.student.school);
-                tr.append(td);
-                td = $("<td></td>").text(exam.grade);
-                tr.append(td);
-                td = $("<td></td>").text(exam.state);
-                tr.append(td);
-
+                let tr = buildTableRow(exam);
                 this.body.append(tr);
             }
-            
+
             this.container.show();
         }
 
         this.show = function (sessionId) {
             var self = this;
+            this.sessionId = sessionId;
             $.ajax({
                 url: apiUrl + "GetResultsRIA",
                 data: { sessionId: sessionId },
@@ -199,9 +207,23 @@
         this.init = function () {
             this.container.hide();
             // TODO: better sorting
-            $('.sortable').click(function() {
+            $('.sortable').click(function () {
                 sortTable($(this).attr('id'));
             });
+            this.insertButton.on("click", function () {
+                // filter retrievedList to get only result with INSERITO state
+                let filteredList = resultList.filter((result) => result.state == "INSERITO");
+                if (filteredList.length == 0) {
+                    alert("No results to insert");
+                }
+                else {
+                    modalUpdate.show(filteredList);
+                }
+            });
+        }
+
+        this.refresh = function () {
+            this.show(this.sessionId);
         }
 
         this.reset = function () {
@@ -264,6 +286,58 @@
         }
     }
 
+    function ModalUpdate(_alert, _container, _tableBody, _form, _cancelButton, _submitButton) {
+        this.alert = _alert;
+        this.modal = _container;
+        this.tableBody = _tableBody;
+        this.form = _form;
+        this.cancelButton = _cancelButton;
+        this.submitButton = _submitButton;
+
+        // given table rows, add form form field for each row
+        this.show = function (rows) {
+            var self = this;
+            this.reset();
+            for (let i = 0; i < rows.length; i++) {
+                let row = rows[i];
+                let tr = buildTableRow(row);
+                let input = $("<input type='number' min='0' max='31' step='1' required></input>");
+                td.append(input);
+                tr.append(td);
+                this.tableBody.append(tr);
+            }
+            this.modal.show();
+        }
+
+        this.hide = function () {
+            this.modal.hide();
+        }
+
+        this.submit = function () {
+            // TODO
+            this.hide();
+        }
+
+        this.reset = function () {
+            this.alert.hide();
+            this.tableBody.empty();
+            this.form.trigger("reset");
+        }
+
+        this.init = function (){
+            var self = this;
+            this.modal.hide();
+            this.cancelButton.on("click", function () {
+                self.hide();
+            });
+            this.form.submit(function (event) {
+                event.preventDefault();
+                self.submit();
+            });
+        }
+
+    }
+
 
     function PageOrchestrator() {
         var alert = $("#alert");
@@ -273,12 +347,14 @@
 
             courseList = new CourseList($("#alert"), $("#course-table"), $("#course-table-body"));
             sessionList = new SessionList($("#alert"), $("#session-table"), $("#session-table-body"));
-            resultList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"));
+            resultList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"), $("#multiple-insert-btn"));
             resultInfo = new ResultInfo($("#alert"), $("#resultInfo-container"), $("#reject-btn"));
+            modalUpdate = new ModalUpdate($("#modal-alert"), $("#modal-container"), $("#modal-table-body"), $("#modal-form"), $("#modal-cancel-btn"), $("#modal-submit-btn"));
             courseList.init();
             sessionList.init();
             resultList.init();
             resultInfo.init();
+            modalUpdate.init();
 
             courseList.show(
                 function () { courseList.autoselect(); }
@@ -291,5 +367,6 @@
             alert.text("");
             alert.hide();
         }
+
     }
 }
