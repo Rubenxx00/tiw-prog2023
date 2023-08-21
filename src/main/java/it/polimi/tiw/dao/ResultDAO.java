@@ -123,7 +123,7 @@ public class ResultDAO {
         }
     }
 
-    // set status for all results in a session, using a transaction
+    // set status for all results in a session
     public void setResultPublished(int sessionId) throws SQLException {
         ResultState state = ResultState.PUBBLICATO;
         String query = "UPDATE result SET state = ? WHERE session_idsession = ?";
@@ -245,6 +245,36 @@ public class ResultDAO {
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    public void updateResults(Integer sessionId, List<Result> results) throws SQLException, InvalidValueException {
+        //begin transaction
+        try {
+            connection.setAutoCommit(false);
+            for(Result result : results){
+                String query = "UPDATE result SET grade = ? , state = ? WHERE session_idsession = ? AND student_student_number = ?";
+                if(result.getGrade() < 1 || result.getGrade() > 31)
+                    throw new InvalidValueException("Grade must be between 0 and 30L");
+                // TODO: further checks
+                try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                    preparedStatement.setInt(1, result.getGrade());
+                    preparedStatement.setInt(2, ResultState.INSERITO.getValue());
+                    preparedStatement.setInt(3, sessionId);
+                    preparedStatement.setInt(4, result.getStudent_student_number());
+                    preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    throw e;
+                }
+            }
+            //commit transaction
+            connection.commit();
+        } catch (SQLException e) {
+            //rollback transaction
+            connection.rollback();
+        } finally {
+            connection.setAutoCommit(true);
         }
     }
 }

@@ -8,3 +8,7 @@ table, th, tr {
 th.sortable {
 	cursor: pointer;
 }
+
+.modified {
+  background-color: #FFC0C0;
+}

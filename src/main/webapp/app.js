@@ -19,15 +19,29 @@
         }
         else {
             td = $("<td></td>");
-            let input = $("<input type='number' name='exam.student_student_number' min='0' max='31' step='1' required></input>");
-            input.val(exam.grade);
-            td.append(input);
+
+            // create input with number type 1 to 31 and step 1
+            let gradeInput = $("<input type='number' min='1' max='31' step='1'></input>");
+            gradeInput.name = "grade";
+            gradeInput.attr("data-id", exam.student.student_number);
+            gradeInput.val(exam.grade)
+            td.append(gradeInput);
+
+            // add on edit listener, change class of input to modified
+            gradeInput.on("input", function () {
+                if (gradeInput.val() != exam.grade) {
+                    gradeInput.addClass("modified");
+                }
+                else {
+                    gradeInput.removeClass("modified");
+                }
+            });
             tr.append(td);
         }
         td = $("<td></td>").text(exam.state);
         tr.append(td);
         return tr;
-      }
+    }
     const apiUrl = "http://localhost:8081/exam_war_exploded/";
     let courseList, sessionList, resultInfo, pageOrchestrator, resultsList, modalUpdate;
     let user;
@@ -227,10 +241,10 @@
                     alert("No results to insert");
                 }
                 else {
-                    modalUpdate.show(filteredList);
+                    modalUpdate.show(filteredList, self.sessionId);
                 }
             });
-                
+
         }
 
         this.refresh = function () {
@@ -304,10 +318,11 @@
         this.form = _form;
         this.cancelButton = _cancelButton;
         this.submitButton = _submitButton;
+        this.sessionId = null;
 
         // given table rows, add form form field for each row
-        this.show = function (rows) {
-            var self = this;
+        this.show = function (rows, sessionId) {
+            this.sessionId = sessionId;
             this.reset();
             for (let i = 0; i < rows.length; i++) {
                 let row = rows[i];
@@ -322,11 +337,33 @@
         }
 
         this.submit = function () {
-            // TODO
-            // log form data
-            var formData = this.form.serialize();
-            console.log(formData);
-            this.hide();
+            var self = this;
+            // create json array of modified only grade (by hidden input) with associated data-student number
+            let modified = [];
+            let inputs = this.tableBody.find("input.modified");
+            for (let i = 0; i < inputs.length; i++) {
+                let input = inputs[i];
+                modified.push({
+                    student_student_number: input.getAttribute("data-id"),
+                    grade: input.value
+                });
+            }
+            // send json array as json to server
+            $.ajax({
+                url: apiUrl + "api/editResults" + "?sessionId=" + this.sessionId,
+                data: JSON.stringify(modified),
+                type: "POST",
+                contentType: "application/json",
+                success: function (data, state) {
+                    resultsList.refresh();
+                    self.hide();
+                },
+                error: function (data, state) {
+                    handle401or403(data);
+                    self.alert.text("Error while updating results");
+                    self.alert.show();
+                }
+            });
         }
 
         this.reset = function () {
@@ -335,9 +372,9 @@
             this.form.trigger("reset");
         }
 
-        this.init = function (){
+        this.init = function () {
             var self = this;
-            this.modal.hide();
+            self.hide();
             this.cancelButton.on("click", function () {
                 self.hide();
             });
