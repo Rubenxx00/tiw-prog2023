@@ -1,6 +1,6 @@
 {
     // TODO: move to other file
-    function buildTableRow(exam) {
+    function buildTableRow(exam, editable = false) {
         let tr = $("<tr></tr>");
         // Add columns
         let td = $("<td></td>").text(exam.student.student_number);
@@ -13,14 +13,23 @@
         tr.append(td);
         td = $("<td></td>").text(exam.student.school);
         tr.append(td);
-        td = $("<td></td>").text(exam.grade);
-        tr.append(td);
+        if (!editable) {
+            td = $("<td></td>").text(exam.grade);
+            tr.append(td);
+        }
+        else {
+            td = $("<td></td>");
+            let input = $("<input type='number' name='exam.student_student_number' min='0' max='31' step='1' required></input>");
+            input.val(exam.grade);
+            td.append(input);
+            tr.append(td);
+        }
         td = $("<td></td>").text(exam.state);
         tr.append(td);
         return tr;
       }
     const apiUrl = "http://localhost:8081/exam_war_exploded/";
-    let courseList, sessionList, resultInfo, pageOrchestrator, resultList, modalUpdate;
+    let courseList, sessionList, resultInfo, pageOrchestrator, resultsList, modalUpdate;
     let user;
     pageOrchestrator = new PageOrchestrator();
 
@@ -140,7 +149,7 @@
                     tr.addClass("selected");
                     tr.siblings().removeClass("selected");
                     if (user.role == "teacher") {
-                        resultList.show(session.idsession);
+                        resultsList.show(session.idsession);
                     }
                     else {
                         resultInfo.show(session.idsession);
@@ -167,7 +176,7 @@
         this.resultList = [];
 
         this.update = function (retrievedList) {
-            resultList = retrievedList;
+            this.resultList = retrievedList;
             this.reset();
             if (retrievedList.length == 0) {
                 let tr = $("<tr></tr>");
@@ -205,14 +214,15 @@
         }
 
         this.init = function () {
+            let self = this;
             this.container.hide();
             // TODO: better sorting
             $('.sortable').click(function () {
                 sortTable($(this).attr('id'));
             });
             this.insertButton.on("click", function () {
-                // filter retrievedList to get only result with INSERITO state
-                let filteredList = resultList.filter((result) => result.state == "INSERITO");
+                // filter retrievedList to get only result with INSERITO or NULL state
+                let filteredList = self.resultList.filter((result) => result.state == "INSERITO" || result.state == "NULL");
                 if (filteredList.length == 0) {
                     alert("No results to insert");
                 }
@@ -220,6 +230,7 @@
                     modalUpdate.show(filteredList);
                 }
             });
+                
         }
 
         this.refresh = function () {
@@ -300,10 +311,7 @@
             this.reset();
             for (let i = 0; i < rows.length; i++) {
                 let row = rows[i];
-                let tr = buildTableRow(row);
-                let input = $("<input type='number' min='0' max='31' step='1' required></input>");
-                td.append(input);
-                tr.append(td);
+                let tr = buildTableRow(row, true);
                 this.tableBody.append(tr);
             }
             this.modal.show();
@@ -315,6 +323,9 @@
 
         this.submit = function () {
             // TODO
+            // log form data
+            var formData = this.form.serialize();
+            console.log(formData);
             this.hide();
         }
 
@@ -347,12 +358,12 @@
 
             courseList = new CourseList($("#alert"), $("#course-table"), $("#course-table-body"));
             sessionList = new SessionList($("#alert"), $("#session-table"), $("#session-table-body"));
-            resultList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"), $("#multiple-insert-btn"));
+            resultsList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"), $("#multiple-insert-btn"));
             resultInfo = new ResultInfo($("#alert"), $("#resultInfo-container"), $("#reject-btn"));
             modalUpdate = new ModalUpdate($("#modal-alert"), $("#modal-container"), $("#modal-table-body"), $("#modal-form"), $("#modal-cancel-btn"), $("#modal-submit-btn"));
             courseList.init();
             sessionList.init();
-            resultList.init();
+            resultsList.init();
             resultInfo.init();
             modalUpdate.init();
 
@@ -362,7 +373,7 @@
         }
 
         this.refresh = function () {
-            resultList.reset();
+            resultsList.reset();
             resultInfo.reset();
             alert.text("");
             alert.hide();
