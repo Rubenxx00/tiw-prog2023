@@ -21,7 +21,6 @@ import java.sql.SQLException;
 public class GetSession extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private Connection connection = null;
-    private TemplateEngine templateEngine;
     public GetSession() {
         super();
     }

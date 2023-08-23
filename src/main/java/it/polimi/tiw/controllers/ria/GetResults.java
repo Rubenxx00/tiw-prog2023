@@ -48,6 +48,7 @@ public class GetResults extends HttpServlet {
             List<Result> results = resultDAO.getResultsBySessionId(sessionId);
             resp.setContentType("application/json");
             resp.setCharacterEncoding("UTF-8");
+            // use Gson to serialize enum
             resp.getWriter().write(new Gson().toJson(results));
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");

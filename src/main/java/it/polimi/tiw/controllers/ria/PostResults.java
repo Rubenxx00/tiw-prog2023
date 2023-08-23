@@ -1,25 +1,24 @@
 package it.polimi.tiw.controllers.ria;
 
-import com.google.gson.Gson;
 import it.polimi.tiw.dao.ReportDAO;
 import it.polimi.tiw.dao.ResultDAO;
-import it.polimi.tiw.dao.SessionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 import it.polimi.tiw.utils.Utils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 
-public class ManageReport extends HttpServlet {
+@WebServlet("/api/postResults")
+public class PostResults extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private Connection connection = null;
-    public ManageReport() {
+    public PostResults() {
         super();
     }
 
@@ -27,8 +26,6 @@ public class ManageReport extends HttpServlet {
         ServletContext ctx = getServletContext();
         connection = ConnectionHandler.getConnection(ctx);
     }
-
-
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -52,7 +49,7 @@ public class ManageReport extends HttpServlet {
                 // if report is already recorded, redirect to results page
                 ReportDAO reportDAO = new ReportDAO(connection);
                 if(reportDAO.isResultRecorded(sessionId)){
-                    resp.sendRedirect(getServletContext().getContextPath() + "/GetReport?sessionId=" + sessionId);
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Results are already recorded");
                     return;
                 }
                 // else, record report
@@ -63,7 +60,7 @@ public class ManageReport extends HttpServlet {
                     return;
                 }
                 resultDAO.setResultRecorded(sessionId);
-                resp.sendRedirect(getServletContext().getContextPath() + "/GetReport?sessionId=" + sessionId);
+
             }
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");

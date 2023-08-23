@@ -53,7 +53,12 @@
             </thead>
             <tbody id="results-table-body"></tbody>
         </table>
-        <button type="button" class="btn btn-outline-success m-2" id="multiple-insert-btn">Multiple Insert</button>
+        <form id="action-form" action="#">
+            <input type="hidden" name="sessionId"/>
+            <button type="submit" class="btn btn-primary m-2" id="publish-btn">Publish</button>
+            <button type="submit" class="btn btn-primary m-2" id="record-btn">Record</button>
+        </form>
+        <button type="button" class="btn btn-secondary m-2" id="multiple-insert-btn">Multiple Insert</button>
     </div>
     <div id="modal-container" class="modal" role="dialog">
         <div class="modal-dialog modal-xl">
@@ -123,6 +128,7 @@
         <button type="button" class="btn btn-danger m-2" id="reject-btn">Reject</button>
     </div>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="utils.js"></script>
     <script src="sort.js"></script>
     <script src="app.js"></script>
 </body>

@@ -254,12 +254,12 @@ public class ResultDAO {
             connection.setAutoCommit(false);
             for(Result result : results){
                 String query = "UPDATE result SET grade = ? , state = ? WHERE session_idsession = ? AND student_student_number = ?";
-                if(result.getGrade() < 1 || result.getGrade() > 31)
+                if(result.getGrade() < 0 || result.getGrade() > 31)
                     throw new InvalidValueException("Grade must be between 0 and 30L");
                 // TODO: further checks
                 try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                     preparedStatement.setInt(1, result.getGrade());
-                    preparedStatement.setInt(2, ResultState.INSERITO.getValue());
+                    preparedStatement.setInt(2, result.getGrade() == 0 ? ResultState.NULL.getValue() : ResultState.INSERITO.getValue());
                     preparedStatement.setInt(3, sessionId);
                     preparedStatement.setInt(4, result.getStudent_student_number());
                     preparedStatement.executeUpdate();

@@ -1,47 +1,4 @@
 {
-    // TODO: move to other file
-    function buildTableRow(exam, editable = false) {
-        let tr = $("<tr></tr>");
-        // Add columns
-        let td = $("<td></td>").text(exam.student.student_number);
-        tr.append(td);
-        td = $("<td></td>").text(exam.student.name);
-        tr.append(td);
-        td = $("<td></td>").text(exam.student.surname);
-        tr.append(td);
-        td = $("<td></td>").text(exam.student.email);
-        tr.append(td);
-        td = $("<td></td>").text(exam.student.school);
-        tr.append(td);
-        if (!editable) {
-            td = $("<td></td>").text(exam.grade);
-            tr.append(td);
-        }
-        else {
-            td = $("<td></td>");
-
-            // create input with number type 1 to 31 and step 1
-            let gradeInput = $("<input type='number' min='1' max='31' step='1'></input>");
-            gradeInput.name = "grade";
-            gradeInput.attr("data-id", exam.student.student_number);
-            gradeInput.val(exam.grade)
-            td.append(gradeInput);
-
-            // add on edit listener, change class of input to modified
-            gradeInput.on("input", function () {
-                if (gradeInput.val() != exam.grade) {
-                    gradeInput.addClass("modified");
-                }
-                else {
-                    gradeInput.removeClass("modified");
-                }
-            });
-            tr.append(td);
-        }
-        td = $("<td></td>").text(exam.state);
-        tr.append(td);
-        return tr;
-    }
     const apiUrl = "http://localhost:8081/exam_war_exploded/";
     let courseList, sessionList, resultInfo, pageOrchestrator, resultsList, modalUpdate;
     let user;
@@ -182,11 +139,14 @@
         }
     }
 
-    function ResultsList(_alert, _container, _body, _insertButton) {
+    function ResultsList(_alert, _container, _body, _insertButton, _publishButton, _recordButton, _form) {
         this.alert = _alert;
         this.container = _container;
         this.body = _body;
         this.insertButton = _insertButton;
+        this.publishButton = _publishButton;
+        this.recordButton = _recordButton;
+        this.form = _form;
         this.resultList = [];
 
         this.update = function (retrievedList) {
@@ -205,6 +165,16 @@
                 this.body.append(tr);
             }
 
+            // if no results in state INSERITO or NULL, show record button
+            let filteredList = retrievedList.filter((result) => result.state == "INSERITO" || result.state == "NULL");
+            if (filteredList.length > 0) {
+                this.recordButton.hide();
+                this.publishButton.show();
+            }
+            else {
+                this.recordButton.show();
+                this.publishButton.hide(); 
+            }
             this.container.show();
         }
 
@@ -238,20 +208,49 @@
                 // filter retrievedList to get only result with INSERITO or NULL state
                 let filteredList = self.resultList.filter((result) => result.state == "INSERITO" || result.state == "NULL");
                 if (filteredList.length == 0) {
-                    alert("No results to insert");
+                    self.alert.text("No results to insert");
+                    self.alert.show();
                 }
                 else {
                     modalUpdate.show(filteredList, self.sessionId);
                 }
             });
-
+            // form submit
+            this.form.submit(function (event) {
+                event.preventDefault();
+                self.publish();
+            }
+            );
         }
+        
+        this.publish = function () {
+            var self = this;
+            // add session id to form
+            this.form.find("input[name='sessionId']").val(this.sessionId);
+            console.log(this.form.serialize());
+            $.ajax({
+                url: apiUrl + "api/postResults",
+                data: this.form.serialize(),
+                type: "POST",
+                success: function (data, state) {
+                    self.refresh();
+                },
+                error: function (data, state) {
+                    handle401or403(data);
+                    self.alert.text("Error while publishing results: " + data.responseText);
+                    self.alert.show();
+                }
+            });
+        }
+
 
         this.refresh = function () {
             this.show(this.sessionId);
         }
 
         this.reset = function () {
+            this.publishButton.hide();
+            this.recordButton.hide();
             this.container.hide();
             this.body.empty();
         }
@@ -395,7 +394,7 @@
 
             courseList = new CourseList($("#alert"), $("#course-table"), $("#course-table-body"));
             sessionList = new SessionList($("#alert"), $("#session-table"), $("#session-table-body"));
-            resultsList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"), $("#multiple-insert-btn"));
+            resultsList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"), $("#multiple-insert-btn"), $("#publish-btn"),  $("#record-btn"), $("#action-form"));
             resultInfo = new ResultInfo($("#alert"), $("#resultInfo-container"), $("#reject-btn"));
             modalUpdate = new ModalUpdate($("#modal-alert"), $("#modal-container"), $("#modal-table-body"), $("#modal-form"), $("#modal-cancel-btn"), $("#modal-submit-btn"));
             courseList.init();
