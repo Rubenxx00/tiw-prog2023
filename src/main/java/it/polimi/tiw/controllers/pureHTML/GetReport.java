@@ -2,6 +2,7 @@ package it.polimi.tiw.controllers.pureHTML;
 
 import it.polimi.tiw.beans.Report;
 import it.polimi.tiw.dao.ReportDAO;
+import it.polimi.tiw.dao.SessionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 import it.polimi.tiw.utils.Utils;
 import org.thymeleaf.TemplateEngine;
@@ -49,11 +50,15 @@ public class GetReport extends HttpServlet {
         try {
             ReportDAO reportDAO = new ReportDAO(connection);
             Report report;
-            if (reportId != null) {
-                report = reportDAO.getSessionByReportId(reportId);
-            } else {
-                report = reportDAO.getReportBySessionId(sessionId);
+            if (reportId == null) {
+                var session = new SessionDAO(connection).getSessionById(sessionId);
+                if (!session.isReported()) {
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Report not available yet");
+                    return;
+                }
+                reportId = session.getReport_idreport();;
             }
+            report = reportDAO.getReportByReportId(reportId);
             final WebContext ctx = new WebContext(req, resp, getServletContext(), req.getLocale());
             ctx.setVariable("report", report);
             ctx.setVariable("rows", report.getRows());

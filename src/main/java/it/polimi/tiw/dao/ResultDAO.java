@@ -10,8 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class ResultDAO {
@@ -197,40 +195,6 @@ public class ResultDAO {
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
-        }
-    }
-
-    // set ResultState.VERBALIZZATO for all results in session
-    public void setResultRecorded(int sessionId) throws SQLException {
-        //begin transaction
-        connection.setAutoCommit(false);
-        try {
-            String query = "UPDATE result SET state = ? WHERE session_idsession = ?";
-            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-                preparedStatement.setInt(1, ResultState.VERBALIZZATO.getValue());
-                preparedStatement.setInt(2, sessionId);
-                preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw e;
-            }
-            // insert new row in report table
-            query = "INSERT INTO report (session_idsession) VALUES (?)";
-            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-                preparedStatement.setInt(1, sessionId);
-                preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw e;
-            }
-            //commit transaction
-            connection.commit();
-        } catch (SQLException e) {
-            //rollback transaction
-            connection.rollback();
-            throw e;
-        } finally {
-            connection.setAutoCommit(true);
         }
     }
 

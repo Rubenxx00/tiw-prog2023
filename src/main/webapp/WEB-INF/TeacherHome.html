@@ -28,13 +28,22 @@
 	<table border="solid">
 		<tr>
 			<th>Session date</th>
+			<th>Action</th>
 		</tr>
 		<tr th:each="s : ${sessions}">
-			<!-- link with text s.date -->
+
+			<!-- if reportId, link to GetReport, else link to GetResults -->
 			<td>
-				<a th:href="@{/GetResults(sessionId=${s.idsession})}">
-					<span th:text="${s.date}"></span>
-				</a>
+				<p th:text="${s.date}"></p>
+			</td>
+
+			<td>
+				<span th:unless="${s.isReported()}">
+					<a th:href="@{/GetResults(sessionId=${s.idsession})}">Edit</a>
+				</span>
+				<span th:if="${s.isReported()}">
+					<a th:href="@{/GetReport(reportId=${s.report_idreport})}">Verbale</a>
+				</span>
 			</td>
 
 		</tr>

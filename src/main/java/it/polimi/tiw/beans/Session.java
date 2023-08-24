@@ -6,13 +6,15 @@ public class Session {
     private int idsession;
     private int course_idcourse;
     private Date date;
+    private Integer report_idreport;
 
     public Session() {}
 
-    public Session(int idsession, int course_idcourse, Date date) {
+    public Session(int idsession, int course_idcourse, Date date, Integer report_idreport) {
         this.idsession = idsession;
         this.course_idcourse = course_idcourse;
         this.date = date;
+        this.report_idreport = report_idreport;
     }
 
     public int getIdsession() {
@@ -37,5 +39,13 @@ public class Session {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Integer getReport_idreport() { return report_idreport; }
+
+    public void setReport_idreport(Integer report_idreport) { this.report_idreport = report_idreport; }
+
+    public boolean isReported() {
+        return report_idreport != 0;
     }
 }

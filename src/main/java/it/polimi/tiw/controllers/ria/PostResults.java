@@ -2,6 +2,7 @@ package it.polimi.tiw.controllers.ria;
 
 import it.polimi.tiw.dao.ReportDAO;
 import it.polimi.tiw.dao.ResultDAO;
+import it.polimi.tiw.dao.SessionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 import it.polimi.tiw.utils.Utils;
 
@@ -49,9 +50,11 @@ public class PostResults extends HttpServlet {
                 resultDAO.setResultPublished(sessionId);
             } else if (req.getParameter("action").equals("record")) {
                 // if report is already recorded, redirect to results page
-                ReportDAO reportDAO = new ReportDAO(connection);
-                if(reportDAO.isResultRecorded(sessionId)){
-                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Results are already recorded");
+                SessionDAO sessionDAO = new SessionDAO(connection);
+                if (sessionDAO.isReported(sessionId)) {
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    resp.setContentType("text/plain");
+                    resp.getWriter().println("Report already recorded");
                     return;
                 }
                 // else, record report
@@ -61,7 +64,11 @@ public class PostResults extends HttpServlet {
                     resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Results have not been published yet");
                     return;
                 }
-                resultDAO.setResultRecorded(sessionId);
+                ReportDAO reportDAO = new ReportDAO(connection);
+                int reportId = reportDAO.createReport(sessionId);
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.setContentType("text/plain");
+                resp.getWriter().println(reportId);
 
             }
         } catch (Exception e) {

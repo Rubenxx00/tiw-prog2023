@@ -2,6 +2,7 @@ package it.polimi.tiw.controllers.pureHTML;
 
 import it.polimi.tiw.dao.ReportDAO;
 import it.polimi.tiw.dao.ResultDAO;
+import it.polimi.tiw.dao.SessionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 import it.polimi.tiw.utils.Utils;
 import org.thymeleaf.TemplateEngine;
@@ -60,8 +61,8 @@ public class PostResults extends HttpServlet {
                 resp.sendRedirect(getServletContext().getContextPath() + "/GetResults?sessionId=" + sessionId);
             } else if (req.getParameter("submit").equals("Record")) {
                 // if report is already recorded, redirect to results page
-                ReportDAO reportDAO = new ReportDAO(connection);
-                if(reportDAO.isResultRecorded(sessionId)){
+                SessionDAO sessionDAO = new SessionDAO(connection);
+                if(sessionDAO.isReported(sessionId)){
                     resp.sendRedirect(getServletContext().getContextPath() + "/GetReport?sessionId=" + sessionId);
                     return;
                 }
@@ -72,8 +73,9 @@ public class PostResults extends HttpServlet {
                     resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Results have not been published yet");
                     return;
                 }
-                resultDAO.setResultRecorded(sessionId);
-                resp.sendRedirect(getServletContext().getContextPath() + "/GetReport?sessionId=" + sessionId);
+                ReportDAO reportDAO = new ReportDAO(connection);
+                int reportId = reportDAO.createReport(sessionId);
+                resp.sendRedirect(getServletContext().getContextPath() + "/GetReport?reportId=" + reportId);
             }
             } catch (Exception e) {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");

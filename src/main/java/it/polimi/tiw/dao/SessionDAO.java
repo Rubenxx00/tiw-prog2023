@@ -24,10 +24,12 @@ public class SessionDAO {
             preparedStatement.setInt(1, courseId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    Session session = new Session();
-                    session.setIdsession(resultSet.getInt("idsession"));
-                    session.setDate(resultSet.getDate("date"));
-                    session.setCourse_idcourse(resultSet.getInt("course_idcourse"));
+                    Session session = new Session(
+                            resultSet.getInt("idsession"),
+                            resultSet.getInt("course_idcourse"),
+                            resultSet.getDate("date"),
+                            resultSet.getInt("report_idreport")
+                    );
                     sessions.add(session);
                 }
             }
@@ -67,10 +69,12 @@ public class SessionDAO {
             preparedStatement.setInt(2, selectedCourseId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    Session session = new Session();
-                    session.setIdsession(resultSet.getInt("idsession"));
-                    session.setDate(resultSet.getDate("date"));
-                    session.setCourse_idcourse(resultSet.getInt("course_idcourse"));
+                    Session session = new Session(
+                            resultSet.getInt("idsession"),
+                            resultSet.getInt("course_idcourse"),
+                            resultSet.getDate("date"),
+                            resultSet.getInt("report_idreport")
+                    );
                     sessions.add(session);
                 }
             }
@@ -88,10 +92,12 @@ public class SessionDAO {
             preparedStatement.setInt(1, sessionId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    session = new Session();
-                    session.setIdsession(resultSet.getInt("idsession"));
-                    session.setDate(resultSet.getDate("date"));
-                    session.setCourse_idcourse(resultSet.getInt("course_idcourse"));
+                    session = new Session(
+                            resultSet.getInt("idsession"),
+                            resultSet.getInt("course_idcourse"),
+                            resultSet.getDate("date"),
+                            resultSet.getInt("report_idreport")
+                    );
                 }
             }
         }
@@ -99,5 +105,23 @@ public class SessionDAO {
             e.printStackTrace();
         }
         return session;
+    }
+
+    // check if report_idreport is not null
+    public boolean isReported(int sessionId) {
+        String query = "SELECT report_idreport FROM session WHERE idsession = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, sessionId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    // null value is 0 in java connector
+                    return resultSet.getInt("report_idreport") != 0;
+                }
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

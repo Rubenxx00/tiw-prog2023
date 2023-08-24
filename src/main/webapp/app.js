@@ -385,6 +385,11 @@
 
     }
 
+    function ReportView(_alert, _container, _resultList) {
+        this.alert = _alert;
+        this.container = _container;
+        this.resultList = _resultList;
+    }
 
     function PageOrchestrator() {
         var alert = $("#alert");
