@@ -139,14 +139,13 @@
         }
     }
 
-    function ResultsList(_alert, _container, _body, _insertButton, _publishButton, _recordButton, _form) {
+    function ResultsList(_alert, _container, _body, _insertButton, _publishButton, _recordButton) {
         this.alert = _alert;
         this.container = _container;
         this.body = _body;
         this.insertButton = _insertButton;
         this.publishButton = _publishButton;
         this.recordButton = _recordButton;
-        this.form = _form;
         this.resultList = [];
 
         this.update = function (retrievedList) {
@@ -170,10 +169,12 @@
             if (filteredList.length > 0) {
                 this.recordButton.hide();
                 this.publishButton.show();
+                this.insertButton.show();
             }
             else {
+                this.insertButton.hide();
                 this.recordButton.show();
-                this.publishButton.hide(); 
+                this.publishButton.hide();
             }
             this.container.show();
         }
@@ -191,7 +192,7 @@
                 },
                 error: function (data, state) {
                     handle401or403(data);
-                    self.alert.text("Error while retrieving results");
+                    self.alert.text("Error while retrieving results: " + data.responseText);
                     self.alert.show();
                 }
             });
@@ -215,34 +216,33 @@
                     modalUpdate.show(filteredList, self.sessionId);
                 }
             });
-            // form submit
-            this.form.submit(function (event) {
-                event.preventDefault();
-                self.publish();
-            }
-            );
+            this.publishButton.on("click", function () {
+                self.action("publish");
+            });
+            this.recordButton.on("click", function () {
+                self.action("record");
+            });
         }
-        
-        this.publish = function () {
+
+        this.action = function (action) {
             var self = this;
-            // add session id to form
-            this.form.find("input[name='sessionId']").val(this.sessionId);
-            console.log(this.form.serialize());
             $.ajax({
                 url: apiUrl + "api/postResults",
-                data: this.form.serialize(),
+                data: {
+                    sessionId: this.sessionId,
+                    action: action
+                },
                 type: "POST",
                 success: function (data, state) {
                     self.refresh();
                 },
                 error: function (data, state) {
                     handle401or403(data);
-                    self.alert.text("Error while publishing results: " + data.responseText);
+                    self.alert.text("Error while " + action + "ing results: " + data.responseText);
                     self.alert.show();
                 }
             });
         }
-
 
         this.refresh = function () {
             this.show(this.sessionId);
@@ -394,7 +394,7 @@
 
             courseList = new CourseList($("#alert"), $("#course-table"), $("#course-table-body"));
             sessionList = new SessionList($("#alert"), $("#session-table"), $("#session-table-body"));
-            resultsList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"), $("#multiple-insert-btn"), $("#publish-btn"),  $("#record-btn"), $("#action-form"));
+            resultsList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"), $("#multiple-insert-btn"), $("#publish-btn"), $("#record-btn"), $("#action-form"));
             resultInfo = new ResultInfo($("#alert"), $("#resultInfo-container"), $("#reject-btn"));
             modalUpdate = new ModalUpdate($("#modal-alert"), $("#modal-container"), $("#modal-table-body"), $("#modal-form"), $("#modal-cancel-btn"), $("#modal-submit-btn"));
             courseList.init();

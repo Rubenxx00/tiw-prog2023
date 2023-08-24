@@ -38,14 +38,16 @@ public class PostResults extends HttpServlet {
         }
         // check submit value
         try {
-            if (req.getParameter("submit").equals("Publish")) {
+            if (req.getParameter("action").equals("publish")) {
                 // check if all results are not null
                 if(resultDAO.hasNullResults(sessionId)){
-                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Some results are missing yet");
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    resp.setContentType("text/plain");
+                    resp.getWriter().println("Some results are missing yet");
                     return;
                 }
                 resultDAO.setResultPublished(sessionId);
-            } else if (req.getParameter("submit").equals("Record")) {
+            } else if (req.getParameter("action").equals("record")) {
                 // if report is already recorded, redirect to results page
                 ReportDAO reportDAO = new ReportDAO(connection);
                 if(reportDAO.isResultRecorded(sessionId)){

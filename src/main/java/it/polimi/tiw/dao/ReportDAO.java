@@ -24,7 +24,7 @@ public class ReportDAO {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     report = new Report(
-                            resultSet.getInt("id"),
+                            resultSet.getInt("idreport"),
                             resultSet.getInt("session_idsession"),
                             resultSet.getDate("datetime")
                     );
