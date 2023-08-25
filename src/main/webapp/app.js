@@ -1,6 +1,6 @@
 {
     const apiUrl = "http://localhost:8081/exam_war_exploded/";
-    let courseList, sessionList, resultInfo, pageOrchestrator, resultsList, modalUpdate;
+    let courseList, sessionList, resultInfo, pageOrchestrator, resultsList, modalUpdate, reportView;
     let user;
     pageOrchestrator = new PageOrchestrator();
 
@@ -90,6 +90,7 @@
         }
 
         this.show = function (courseId) {
+            this.courseId = courseId;
             var self = this;
             $.ajax({
                 url: apiUrl + "GetSessionRIA",
@@ -120,7 +121,12 @@
                     tr.addClass("selected");
                     tr.siblings().removeClass("selected");
                     if (user.role == "teacher") {
-                        resultsList.show(session.idsession);
+                        if (session.report_idreport != null){
+                            reportView.show(session.report_idreport);
+                        }
+                        else {
+                            resultsList.show(session.idsession);
+                        }
                     }
                     else {
                         resultInfo.show(session.idsession);
@@ -133,6 +139,9 @@
             this.listcontainer.show();
         }
 
+        this.refresh = function () {
+            this.show(this.courseId);
+        }
         this.reset = function () {
             this.listcontainerbody.empty();
             this.listcontainer.hide();
@@ -234,7 +243,15 @@
                 },
                 type: "POST",
                 success: function (data, state) {
-                    self.refresh();
+                    if (action == "record") {
+                        // refresh session list
+                        sessionList.refresh();
+                        self.alert.text("Results recorded");
+                        self.alert.show();
+                    }
+                    else
+                        self.refresh();
+
                 },
                 error: function (data, state) {
                     handle401or403(data);
@@ -385,10 +402,53 @@
 
     }
 
-    function ReportView(_alert, _container, _resultList) {
+    function ReportView(_alert, _container, _head, _resultList) {
         this.alert = _alert;
         this.container = _container;
+        this.head = _head;
         this.resultList = _resultList;
+
+        this.init = function () {
+            this.container.hide();
+        }
+
+        this.show = function (reportId) {
+            var self = this;
+            $.ajax({
+                url: apiUrl + "api/getReport",
+                data: { reportId: reportId },
+                type: "GET",
+                success: function (data, state) {
+                    pageOrchestrator.refresh();
+                    self.update(data);
+                },
+                error: function (data, state) {
+                    handle401or403(data);
+                    self.alert.text("Error while retrieving report");
+                    self.alert.show();
+                }
+            });
+        }
+
+        this.update = function (report) {
+            $('#idReport').text('Report ID: ' + report.idreport);
+            $('#reportDate').text('Report date: ' + report.date);
+            $('#sessionDate').text('Session date: ' + report.session.date);
+        
+            this.resultList.empty();
+            rows = report.rows;
+            for (let i = 0; i < rows.length; i++) {
+                let result = rows[i];
+                let tr = buildTableRow(result);
+                this.resultList.append(tr);
+            }
+            this.container.show();
+        }
+
+        this.reset = function () {
+            this.container.hide();
+            this.resultList.empty();
+        }
     }
 
     function PageOrchestrator() {
@@ -402,11 +462,13 @@
             resultsList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"), $("#multiple-insert-btn"), $("#publish-btn"), $("#record-btn"), $("#action-form"));
             resultInfo = new ResultInfo($("#alert"), $("#resultInfo-container"), $("#reject-btn"));
             modalUpdate = new ModalUpdate($("#modal-alert"), $("#modal-container"), $("#modal-table-body"), $("#modal-form"), $("#modal-cancel-btn"), $("#modal-submit-btn"));
+            reportView = new ReportView($("#alert"), $("#report-container"), $("#report-head") ,$("#report-table-body"));
             courseList.init();
             sessionList.init();
             resultsList.init();
             resultInfo.init();
             modalUpdate.init();
+            reportView.init();
 
             courseList.show(
                 function () { courseList.autoselect(); }
@@ -416,6 +478,7 @@
         this.refresh = function () {
             resultsList.reset();
             resultInfo.reset();
+            reportView.reset();
             alert.text("");
             alert.hide();
         }
