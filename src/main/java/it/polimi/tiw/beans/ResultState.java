@@ -4,7 +4,8 @@ public enum ResultState {
     NULL(0, "Non inserito"),
     INSERITO(1, "Inserito"),
     PUBBLICATO(2, "Pubblicato"),
-    VERBALIZZATO(3, "Verbalizzato");
+    RIFIUTATO(3, "Rifiutato"),
+    VERBALIZZATO(4, "Verbalizzato");
 
     private final int value;
     private final String description;

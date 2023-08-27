@@ -93,7 +93,7 @@
             this.courseId = courseId;
             var self = this;
             $.ajax({
-                url: apiUrl + "GetSessionRIA",
+                url: apiUrl + "/api/sessions",
                 data: { courseId: courseId },
                 type: "GET",
                 success: function (data, state) {
@@ -162,28 +162,29 @@
             this.reset();
             if (retrievedList.length == 0) {
                 let tr = $("<tr></tr>");
-                let td = $("<td></td>").text("No results found");
+                let td = $("<td></td>").text("No students found");
                 tr.append(td);
                 this.body.append(tr);
             }
+            else{
+                for (let i = 0; i < retrievedList.length; i++) {
+                    let exam = retrievedList[i];
+                    let tr = buildTableRow(exam);
+                    this.body.append(tr);
+                }
 
-            for (let i = 0; i < retrievedList.length; i++) {
-                let exam = retrievedList[i];
-                let tr = buildTableRow(exam);
-                this.body.append(tr);
-            }
-
-            // if no results in state INSERITO or NULL, show record button
-            let filteredList = retrievedList.filter((result) => result.state == "INSERITO" || result.state == "NULL");
-            if (filteredList.length > 0) {
-                this.recordButton.hide();
-                this.publishButton.show();
-                this.insertButton.show();
-            }
-            else {
-                this.insertButton.hide();
-                this.recordButton.show();
-                this.publishButton.hide();
+                // if no results in state INSERITO or NULL, show record button
+                let filteredList = retrievedList.filter((result) => result.state == "INSERITO" || result.state == "NULL");
+                if (filteredList.length > 0) {
+                    this.recordButton.hide();
+                    this.publishButton.show();
+                    this.insertButton.show();
+                }
+                else {
+                    this.insertButton.hide();
+                    this.recordButton.show();
+                    this.publishButton.hide();
+                }
             }
             this.container.show();
         }
@@ -432,6 +433,7 @@
 
         this.update = function (report) {
             $('#idReport').text('Report ID: ' + report.idreport);
+            // full date and time
             $('#reportDate').text('Report date: ' + report.date);
             $('#sessionDate').text('Session date: ' + report.session.date);
         

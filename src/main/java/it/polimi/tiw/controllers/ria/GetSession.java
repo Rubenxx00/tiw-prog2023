@@ -2,6 +2,7 @@ package it.polimi.tiw.controllers.ria;
 
 import com.google.gson.Gson;
 import it.polimi.tiw.beans.Session;
+import it.polimi.tiw.beans.User;
 import it.polimi.tiw.dao.SessionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 import it.polimi.tiw.utils.Utils;
@@ -16,8 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
-@WebServlet("/GetSessionRIA")
+@WebServlet("/api/sessions")
 public class GetSession extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private Connection connection = null;
@@ -32,6 +34,7 @@ public class GetSession extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        User user = (User) req.getSession().getAttribute("currentUser");
         // get courseId from request
         Integer courseId = Utils.tryParse(req.getParameter("courseId"));
         if (courseId == null) {
@@ -42,7 +45,13 @@ public class GetSession extends HttpServlet {
         // get session from db
         try {
             var sessionDAO = new SessionDAO(connection);
-            var sessions = sessionDAO.getSessionsByCourseId(courseId);
+            List<Session> sessions = null;
+            if(user.getRole() == "teacher"){
+                sessions = sessionDAO.getSessionsByCourseId(courseId);
+            }
+            else {
+                sessions = sessionDAO.findEnrolledSessionsByStudentId(user.getLogin(), courseId);
+            }
             if (sessions == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Session not found");
                 return;

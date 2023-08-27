@@ -76,7 +76,7 @@ public class GetStudentResult extends HttpServlet{
     }
 
 
-    // refuse Result
+    // reject Result
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer sessionId = Utils.tryParse(req.getParameter("sessionId"));
         // get studentId from session

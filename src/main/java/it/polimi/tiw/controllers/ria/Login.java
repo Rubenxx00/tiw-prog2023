@@ -69,8 +69,8 @@ public class Login extends HttpServlet {
             response.sendError(500, "Database access failed");
         }
 
-        // If the user exists, add info to the session and go to home page, otherwise
-        // show login page with error message
+        // If the user exists, add info to the session and go to home page
+        // otherwise send error
 
         String path;
         if (user == null) {

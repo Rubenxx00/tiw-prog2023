@@ -1,16 +1,17 @@
 package it.polimi.tiw.beans;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class Session {
     private int idsession;
     private int course_idcourse;
-    private Date date;
+    private Timestamp date;
     private Integer report_idreport;
 
     public Session() {}
 
-    public Session(int idsession, int course_idcourse, Date date, Integer report_idreport) {
+    public Session(int idsession, int course_idcourse, Timestamp date, Integer report_idreport) {
         this.idsession = idsession;
         this.course_idcourse = course_idcourse;
         this.date = date;
@@ -33,11 +34,11 @@ public class Session {
         this.course_idcourse = course_idcourse;
     }
 
-    public Date getDate() {
+    public Timestamp getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Timestamp date) {
         this.date = date;
     }
 

@@ -50,8 +50,7 @@ public class ResultDAO {
                         resultSet.getInt("student_student_number"),
                         resultSet.getInt("session_idsession"),
                         resultSet.getInt("grade"),
-                        resultSet.getInt("state"),
-                        resultSet.getBoolean("isRefused")
+                        resultSet.getInt("state")
                     );
                     result.setStudent(new Student(
                         resultSet.getInt("student_number"),
@@ -80,8 +79,7 @@ public class ResultDAO {
                         resultSet.getInt("student_student_number"),
                         resultSet.getInt("session_idsession"),
                         resultSet.getInt("grade"),
-                        resultSet.getInt("state"),
-                        resultSet.getBoolean("isRefused")
+                        resultSet.getInt("state")
                     );
                     result.setStudent(studentDAO.getStudentByStudentNumber(result.getStudent_student_number()));
                 }
@@ -186,11 +184,12 @@ public class ResultDAO {
 
     // update rows in DB to set ResultState to REFUSED
     public void refuseResult(int sessionId, int studentId) throws SQLException {
-        String query = "UPDATE result SET isRefused = ? WHERE session_idsession = ? AND student_student_number = ?";
+        String query = "UPDATE result SET state = ?, grade = ? WHERE session_idsession = ? AND student_student_number = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setBoolean(1, true);
-            preparedStatement.setInt(2, sessionId);
-            preparedStatement.setInt(3, studentId);
+            preparedStatement.setInt(1, ResultState.RIFIUTATO.getValue());
+            preparedStatement.setInt(2, ResultState.RIFIUTATO.getValue());
+            preparedStatement.setInt(3, sessionId);
+            preparedStatement.setInt(4, studentId);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

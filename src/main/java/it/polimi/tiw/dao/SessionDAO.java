@@ -27,7 +27,7 @@ public class SessionDAO {
                     Session session = new Session(
                             resultSet.getInt("idsession"),
                             resultSet.getInt("course_idcourse"),
-                            resultSet.getDate("date"),
+                            resultSet.getTimestamp("date"),
                             resultSet.getInt("report_idreport")
                     );
                     sessions.add(session);
@@ -72,7 +72,7 @@ public class SessionDAO {
                     Session session = new Session(
                             resultSet.getInt("idsession"),
                             resultSet.getInt("course_idcourse"),
-                            resultSet.getDate("date"),
+                            resultSet.getTimestamp("date"),
                             resultSet.getInt("report_idreport")
                     );
                     sessions.add(session);
@@ -95,7 +95,7 @@ public class SessionDAO {
                     session = new Session(
                             resultSet.getInt("idsession"),
                             resultSet.getInt("course_idcourse"),
-                            resultSet.getDate("date"),
+                            resultSet.getTimestamp("date"),
                             resultSet.getInt("report_idreport")
                     );
                 }
