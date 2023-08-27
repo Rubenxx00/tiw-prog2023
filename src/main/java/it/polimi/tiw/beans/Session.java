@@ -47,6 +47,6 @@ public class Session {
     public void setReport_idreport(Integer report_idreport) { this.report_idreport = report_idreport == 0 ? null : report_idreport; }
 
     public boolean isReported() {
-        return report_idreport != 0;
+        return report_idreport != null;
     }
 }

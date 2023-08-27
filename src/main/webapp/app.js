@@ -121,7 +121,7 @@
                     tr.addClass("selected");
                     tr.siblings().removeClass("selected");
                     if (user.role == "teacher") {
-                        if (session.report_idreport != null){
+                        if (session.report_idreport != null) {
                             reportView.show(session.report_idreport);
                         }
                         else {
@@ -166,7 +166,7 @@
                 tr.append(td);
                 this.body.append(tr);
             }
-            else{
+            else {
                 for (let i = 0; i < retrievedList.length; i++) {
                     let exam = retrievedList[i];
                     let tr = buildTableRow(exam);
@@ -282,21 +282,24 @@
 
         this.init = function () {
             this.container.hide();
+            this.button.hide();
             this.button.on("click", function () {
-                // TODO
-            }
-            );
+                resultInfo.reject();
+            });
         }
 
-        this.show = function (sessionId) {
+        this.show = function (sessionId, next) {
             var self = this;
+            this.sessionId = sessionId;
             $.ajax({
-                url: apiUrl + "GetStudentResultRIA",
+                url: apiUrl + "/api/studentResult",
                 data: { sessionId: sessionId },
                 type: "GET",
                 success: function (data, state) {
                     pageOrchestrator.refresh();
                     self.update(data);
+                    if (next)
+                        next();
                 },
                 error: function (data, state) {
                     handle401or403(data);
@@ -307,7 +310,7 @@
         }
 
         this.update = function (result) {
-            if (result.state == "INSERITO") {
+            if (result.state == "PUBBLICATO") {
                 this.button.show();
             }
             var tds = this.container.find('table.table td');
@@ -323,8 +326,35 @@
 
         }
 
+        this.reject = function () {
+            var self = this;
+            $.ajax({
+                url: apiUrl + "/api/studentResult",
+                data: {
+                    sessionId: this.sessionId,
+                },
+                type: "POST",
+                success: function (data, state) {
+                    self.refresh(() => {
+                        resultInfo.alert.text("Results rejected");
+                        resultInfo.alert.show();
+                    });
+                },
+                error: function (data, state) {
+                    handle401or403(data);
+                    self.alert.text("Error while rejecting results: " + data.responseText);
+                    self.alert.show();
+                }
+            });
+        }
+        
         this.reset = function () {
             this.container.hide();
+            this.button.hide();
+        }
+
+        this.refresh = function (next) {
+            this.show(this.sessionId, next);
         }
     }
 
@@ -436,7 +466,7 @@
             // full date and time
             $('#reportDate').text('Report date: ' + report.date);
             $('#sessionDate').text('Session date: ' + report.session.date);
-        
+
             this.resultList.empty();
             rows = report.rows;
             for (let i = 0; i < rows.length; i++) {
@@ -464,7 +494,7 @@
             resultsList = new ResultsList($("#alert"), $("#results-container"), $("#results-table-body"), $("#multiple-insert-btn"), $("#publish-btn"), $("#record-btn"), $("#action-form"));
             resultInfo = new ResultInfo($("#alert"), $("#resultInfo-container"), $("#reject-btn"));
             modalUpdate = new ModalUpdate($("#modal-alert"), $("#modal-container"), $("#modal-table-body"), $("#modal-form"), $("#modal-cancel-btn"), $("#modal-submit-btn"));
-            reportView = new ReportView($("#alert"), $("#report-container"), $("#report-head") ,$("#report-table-body"));
+            reportView = new ReportView($("#alert"), $("#report-container"), $("#report-head"), $("#report-table-body"));
             courseList.init();
             sessionList.init();
             resultsList.init();

@@ -1,5 +1,10 @@
 package it.polimi.tiw.beans;
 
+import it.polimi.tiw.utils.Utils;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class Result {
     private int student_student_number;
     private int session_idsession;
@@ -67,13 +72,7 @@ public class Result {
     }
 
     public String getGradeString() {
-        if (grade == 0) {
-            return "N/A";
-        } else if (grade == 31) {
-            return "30 e Lode";
-        } else {
-            return grade.toString();
-        }
+        return Utils.gradeMap.get(this.grade);
     }
 
     public boolean isRejected() {

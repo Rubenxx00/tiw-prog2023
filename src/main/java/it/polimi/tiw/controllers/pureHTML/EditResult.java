@@ -80,6 +80,7 @@ public class EditResult extends HttpServlet {
             final WebContext ctx = new WebContext(req, resp, getServletContext(), req.getLocale());
             ctx.setVariable("result", result);
             ctx.setVariable("student", result.getStudent());
+            ctx.setVariable("gradeMap", Utils.gradeMap);
             templateEngine.process("/WEB-INF/EditResult.html", ctx, resp.getWriter());
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");

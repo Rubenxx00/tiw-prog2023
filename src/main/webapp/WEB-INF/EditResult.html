@@ -38,10 +38,10 @@
     <!-- form to select a grade from 1 to 31 -->
     <label for="grade">Grade:</label>
     <select id="grade" name="grade">
-        <option th:each="i : ${#numbers.sequence(1, 31)}"
-                th:value="${i}"
-                th:text="${i == 31 ? '30L' : i}"
-                th:selected="${i == result.grade}">
+        <!-- loop in Utils.gradeMap -->
+        <option th:each="i : ${gradeMap.entrySet()}"
+                th:value="${i.key}" th:text="${i.value}"
+                th:selected="${i.key == result.grade}">
         </option>
     </select>
     <button type="submit">Submit</button>

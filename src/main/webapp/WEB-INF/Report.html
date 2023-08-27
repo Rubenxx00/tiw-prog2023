@@ -19,6 +19,7 @@
         <th>Student ID</th>
         <th>Name</th>
         <th>Surname</th>
+        <th>School</th>
         <th>Grade</th>
         <th>State</th>
     </tr>
@@ -26,6 +27,7 @@
         <td th:text="${r.student_student_number}"></td>
         <td th:text="${r.student.name}"></td>
         <td th:text="${r.student.surname}"></td>
+        <td th:text="${r.student.school}"></td>
         <td th:text="${r.getGradeString()}"></td>
         <td th:text="${r.state.getDescription()}"></td>
     </tr>

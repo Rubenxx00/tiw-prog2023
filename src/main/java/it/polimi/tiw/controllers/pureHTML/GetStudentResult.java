@@ -2,9 +2,6 @@ package it.polimi.tiw.controllers.pureHTML;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -96,7 +93,7 @@ public class GetStudentResult extends HttpServlet{
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Result is not editable");
                 return;
             }
-            resultDAO.refuseResult(sessionId, studentId);
+            resultDAO.rejectResult(sessionId, studentId);
             resp.sendRedirect(getServletContext().getContextPath() + "/GetStudentResult?sessionId=" + result.getSession_idsession());
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Update failed");

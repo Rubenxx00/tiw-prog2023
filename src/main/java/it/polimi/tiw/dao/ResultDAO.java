@@ -4,6 +4,7 @@ import it.polimi.tiw.InvalidValueException;
 import it.polimi.tiw.beans.Result;
 import it.polimi.tiw.beans.ResultState;
 import it.polimi.tiw.beans.Student;
+import it.polimi.tiw.utils.Utils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -90,12 +91,12 @@ public class ResultDAO {
 
     // update grade in database
     public void updateGrade(int sessionId, int studentId, int grade) throws InvalidValueException, SQLException {
-        if(grade < 1 || grade > 31)
-            throw new InvalidValueException("Grade must be between 0 and 30");
+        if(grade < 0 || grade > 31)
+            throw new InvalidValueException("Grade must be between 0 and 30L");
         String query = "UPDATE result SET grade = ? , state = ? WHERE session_idsession = ? AND student_student_number = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, grade);
-            preparedStatement.setInt(2, ResultState.INSERITO.getValue());
+            preparedStatement.setInt(2, grade == 0 ? ResultState.NULL.getValue() : ResultState.INSERITO.getValue());
             preparedStatement.setInt(3, sessionId);
             preparedStatement.setInt(4, studentId);
             preparedStatement.executeUpdate();
@@ -183,11 +184,12 @@ public class ResultDAO {
     }
 
     // update rows in DB to set ResultState to REFUSED
-    public void refuseResult(int sessionId, int studentId) throws SQLException {
+    public void rejectResult(int sessionId, int studentId) throws SQLException {
         String query = "UPDATE result SET state = ?, grade = ? WHERE session_idsession = ? AND student_student_number = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, ResultState.RIFIUTATO.getValue());
-            preparedStatement.setInt(2, ResultState.RIFIUTATO.getValue());
+            // find grade for "Rimandato"
+            preparedStatement.setInt(2, Utils.getGradeValueFor("Rimandato"));
             preparedStatement.setInt(3, sessionId);
             preparedStatement.setInt(4, studentId);
             preparedStatement.executeUpdate();
