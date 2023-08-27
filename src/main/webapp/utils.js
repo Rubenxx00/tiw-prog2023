@@ -31,11 +31,16 @@ function buildTableRow(exam, editable = false) {
   else {
     td = $("<td></td>");
 
-    // create input with number type
-    let gradeInput = $("<input type='number' min='0' max='31' step='1'></input>");
-    gradeInput.name = "grade";
-    gradeInput.attr("data-id", exam.student.student_number);
-    gradeInput.val(exam.grade)
+    // create input with values from gradeMap and set it to the current grade
+    let gradeInput = $("<select></select>");
+    for (let key in gradeMap) {
+      let option = $("<option></option>").attr("value", key).text(gradeMap[key]);
+      if (key == exam.grade) {
+        option.attr("selected", "selected");
+      }
+      gradeInput.attr("data-id", exam.student.student_number);
+      gradeInput.append(option);
+    }
     td.append(gradeInput);
 
     // add on edit listener, change class of input to modified and state to inserito
@@ -71,11 +76,28 @@ function getDescriptionForResultState(state) {
   }
 }
 
+const gradeMap = {
+  0: "<vuoto>",
+  1: "Assente",
+  2: "Rimandato",
+  3: "Riprovato",
+  18: "18",
+  19: "19",
+  20: "20",
+  21: "21",
+  22: "22",
+  23: "23",
+  24: "24",
+  25: "25",
+  26: "26",
+  27: "27",
+  28: "28",
+  29: "29",
+  30: "30",
+  31: "30 e Lode"
+};
+
+
 function getGradeDescription(grade) {
-  if (grade == 31) {
-    return "30 e lode";
-  }
-  else {
-    return grade;
-  }
+  return gradeMap[grade];
 }

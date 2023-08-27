@@ -46,7 +46,7 @@ public class GetSession extends HttpServlet {
         try {
             var sessionDAO = new SessionDAO(connection);
             List<Session> sessions = null;
-            if(user.getRole() == "teacher"){
+            if(user.getRole().equals("teacher")){
                 sessions = sessionDAO.getSessionsByCourseId(courseId);
             }
             else {

@@ -385,9 +385,9 @@
 
         this.submit = function () {
             var self = this;
-            // create json array of modified only grade (by hidden input) with associated data-student number
+            // create json array of modified only grade (by <select> input) with associated data-student number
             let modified = [];
-            let inputs = this.tableBody.find("input.modified");
+            let inputs = this.tableBody.find("select.modified");
             for (let i = 0; i < inputs.length; i++) {
                 let input = inputs[i];
                 modified.push({
