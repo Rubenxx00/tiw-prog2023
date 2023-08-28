@@ -5,6 +5,14 @@
 th.sortable {
 	cursor: pointer;
 }
+.sortable.asc::after {
+  content: ' \25B2';  /* Up arrow */
+}
+
+.sortable.desc::after {
+  content: ' \25BC';  /* Down arrow */
+}
+
 th a { color: inherit; }
 
 .bold {

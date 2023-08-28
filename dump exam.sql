@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `mydb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `mydb`;
 -- MySQL dump 10.13  Distrib 8.0.32, for Linux (x86_64)
 --
 -- Host: localhost    Database: mydb
@@ -38,7 +40,7 @@ CREATE TABLE `course` (
 
 LOCK TABLES `course` WRITE;
 /*!40000 ALTER TABLE `course` DISABLE KEYS */;
-INSERT INTO `course` VALUES (1,'Tiw',1),(2,'Analisi 1',3),(3,'Databases',1),(4,'Analisi 2',3);
+INSERT INTO `course` VALUES (1,'Tiw',1),(2,'Analisi 1',3),(3,'Databases',1),(4,'Analisi 2',3),(5,'Ing. sw',1);
 /*!40000 ALTER TABLE `course` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -66,7 +68,7 @@ CREATE TABLE `enroll` (
 
 LOCK TABLES `enroll` WRITE;
 /*!40000 ALTER TABLE `enroll` DISABLE KEYS */;
-INSERT INTO `enroll` VALUES (2,1),(4,1),(5,1),(2,2),(5,2),(4,3),(5,3);
+INSERT INTO `enroll` VALUES (2,1),(4,1),(5,1),(6,1),(7,1),(9,1),(2,2),(5,2),(7,2),(4,3),(5,3),(8,5);
 /*!40000 ALTER TABLE `enroll` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -80,11 +82,8 @@ DROP TABLE IF EXISTS `report`;
 CREATE TABLE `report` (
   `idreport` int NOT NULL AUTO_INCREMENT,
   `datetime` datetime DEFAULT (now()),
-  `session_idsession` int DEFAULT NULL,
-  PRIMARY KEY (`idreport`),
-  UNIQUE KEY `report_session_idsession_fk` (`session_idsession`),
-  CONSTRAINT `report_session_idsession_fk` FOREIGN KEY (`session_idsession`) REFERENCES `session` (`idsession`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`idreport`)
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -108,7 +107,6 @@ CREATE TABLE `result` (
   `session_idsession` int NOT NULL,
   `grade` int DEFAULT NULL,
   `state` int DEFAULT '0',
-  `isRefused` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`student_student_number`,`session_idsession`),
   KEY `fk_student_has_session_session1_idx` (`session_idsession`),
   KEY `fk_student_has_session_student1_idx` (`student_student_number`),
@@ -123,7 +121,7 @@ CREATE TABLE `result` (
 
 LOCK TABLES `result` WRITE;
 /*!40000 ALTER TABLE `result` DISABLE KEYS */;
-INSERT INTO `result` VALUES (2,1,0,0,0),(2,2,0,0,0),(4,1,0,0,0),(4,3,0,0,0);
+INSERT INTO `result` VALUES (2,1,0,0),(2,2,0,0),(2,3,0,0),(2,4,0,0),(2,5,0,0),(4,1,0,0),(4,2,0,0),(4,3,0,0),(4,5,0,0),(5,1,0,0),(5,2,0,0),(5,3,0,0),(5,4,0,0),(6,1,0,0),(6,4,0,0),(6,5,0,0),(7,1,0,0),(7,2,0,0),(7,4,0,0),(7,5,0,0),(8,1,0,0),(8,2,0,0),(8,3,0,0),(9,1,0,0),(9,2,0,0),(9,3,0,0),(9,5,0,0);
 /*!40000 ALTER TABLE `result` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -138,9 +136,12 @@ CREATE TABLE `session` (
   `idsession` int NOT NULL AUTO_INCREMENT,
   `course_idcourse` int NOT NULL,
   `date` datetime NOT NULL,
+  `report_idreport` int DEFAULT NULL,
   PRIMARY KEY (`idsession`),
+  UNIQUE KEY `report_idreport_UNIQUE` (`report_idreport`),
   KEY `fk_session_course1` (`course_idcourse`),
-  CONSTRAINT `fk_session_course1` FOREIGN KEY (`course_idcourse`) REFERENCES `course` (`idcourse`)
+  CONSTRAINT `fk_session_course1` FOREIGN KEY (`course_idcourse`) REFERENCES `course` (`idcourse`),
+  CONSTRAINT `fk_session_report` FOREIGN KEY (`report_idreport`) REFERENCES `report` (`idreport`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -150,7 +151,7 @@ CREATE TABLE `session` (
 
 LOCK TABLES `session` WRITE;
 /*!40000 ALTER TABLE `session` DISABLE KEYS */;
-INSERT INTO `session` VALUES (1,1,'2023-08-10 10:00:00'),(2,1,'2023-08-12 10:00:00'),(3,2,'2023-08-15 14:00:00'),(4,3,'2023-08-17 11:00:00'),(5,1,'2023-08-20 10:00:00'),(6,2,'2023-08-22 14:00:00'),(7,3,'2023-08-25 11:00:00'),(8,4,'2023-08-27 09:00:00');
+INSERT INTO `session` VALUES (1,1,'2023-08-10 10:00:00',NULL),(2,1,'2023-08-12 10:00:00',NULL),(3,2,'2023-08-15 14:00:00',NULL),(4,3,'2023-08-17 11:00:00',NULL),(5,1,'2023-08-20 10:00:00',NULL),(6,2,'2023-08-22 14:00:00',NULL),(7,3,'2023-08-25 11:00:00',NULL),(8,4,'2023-08-27 09:00:00',NULL);
 /*!40000 ALTER TABLE `session` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,7 +177,7 @@ CREATE TABLE `student` (
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
-INSERT INTO `student` VALUES (2,'Ingegneria Informatica'),(4,'Ingegneria Eletronica'),(5,'Ingegneria Civile');
+INSERT INTO `student` VALUES (2,'Ingegneria Informatica'),(4,'Ingegneria Eletronica'),(5,'Ingegneria Civile'),(6,'Ingegneria Informatica'),(7,'Ingegneria Chimica'),(8,'Ingegneria Informatica'),(9,'Ingegneria Gestionale');
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -195,7 +196,7 @@ CREATE TABLE `user` (
   `role` varchar(45) NOT NULL,
   `email` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`login`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -204,7 +205,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'Giovanni','Rossi','password1','teacher','giovanni.rossi@example.com'),(2,'Maria','Verdi','password2','student','maria.verdi@example.com'),(3,'Alessio','Bianchi','password3','teacher','alessio.bianchi@example.com'),(4,'Laura','Ferrari','password4','student','laura.ferrari@example.com'),(5,'Marco','Neri','password5','student','marco.neri@example.com');
+INSERT INTO `user` VALUES (1,'Giovanni','Rossi','password1','teacher','giovanni.rossi@example.com'),(2,'Maria','Verdi','password2','student','maria.verdi@example.com'),(3,'Alessio','Bianchi','password3','teacher','alessio.bianchi@example.com'),(4,'Laura','Ferrari','password4','student','laura.ferrari@example.com'),(5,'Marco','Neri','password5','student','marco.neri@example.com'),(6,'Giulio','Scaltritti','password6','student','giulio.scaltritti@example.com'),(7,'John','Doe','password7','student','john.doe@example.com'),(8,'Jane','Smith','password8','student','jane.smith@example.com'),(9,'Bill','Brown','password9','student','bill.brown@example.com');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -217,4 +218,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-07  1:28:00
+-- Dump completed on 2023-08-28 20:46:01
