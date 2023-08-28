@@ -78,5 +78,9 @@ public class Result {
     public boolean isRejected() {
         return this.state.getValue() == ResultState.RIFIUTATO.getValue();
     }
+
+    public boolean isPublished() {
+        return this.state.getValue() >= ResultState.PUBBLICATO.getValue();
+    }
 }
 

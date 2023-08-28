@@ -23,7 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/GetCoursesRIA")
+@WebServlet("/api/courses")
 public class GetCourses extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private Connection connection = null;

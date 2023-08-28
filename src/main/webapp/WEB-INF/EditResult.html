@@ -1,16 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Edit result</title>
-</head>
+<head th:replace="fragments/header :: default-head(title='Edit results')"></head>
 <body>
-<div>
-  <a th:href="@{/Logout}" style="text-align:right;">Logout</a>
-</div>
+<div th:replace="fragments/header :: navbar"></div>
 <!--vertical table with student info -->
-
-    <table>
+    <table class="table table-bordered">
         <tr>
             <th>Student ID</th>
             <td th:text="${student.student_number}"></td>

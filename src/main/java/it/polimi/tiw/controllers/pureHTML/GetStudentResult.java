@@ -64,7 +64,7 @@ public class GetStudentResult extends HttpServlet{
             ctx.setVariable("result", result);
             ctx.setVariable("student", result.getStudent());
             ctx.setVariable("course", course);
-
+            ctx.setVariable("user", (User) req.getSession().getAttribute("currentUser"));
             String path = "/WEB-INF/GetStudentResult.html";
             templateEngine.process(path, ctx, resp.getWriter());
         } catch (SQLException e) {

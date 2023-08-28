@@ -1,45 +1,57 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Results</title>
-    <link rel="stylesheet" href="css/mystyle.css">
-</head>
+<head th:replace="fragments/header :: default-head(title='Iscritti')"></head>
 
 <body>
-<div>
-  <a th:href="@{/Logout}" style="text-align:right;">Logout</a>
-</div>
-<h1>Courses</h1>
+<div th:replace="fragments/header :: navbar"></div>
+<h1>Iscritti</h1>
 <!--matricola, cognome e nome, email, corso di laurea, voto e stato di valutazione.-->
-<table border="solid">
-    <tr>
-        <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='studentId', order=${order eq 'asc' ? 'desc' : 'asc'})}">Student ID</a></th>
-        <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='name', order=${order eq 'asc' ? 'desc' : 'asc'})}">Name</a></th>
-        <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='surname', order=${order eq 'asc' ? 'desc' : 'asc'})}">Surname</a></th>
-        <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='email', order=${order eq 'asc' ? 'desc' : 'asc'})}">Email</a></th>
-        <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='school', order=${order eq 'asc' ? 'desc' : 'asc'})}">School</a></th>
-        <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='grade', order=${order eq 'asc' ? 'desc' : 'asc'})}">Grade</a></th>
-        <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='state', order=${order eq 'asc' ? 'desc' : 'asc'})}">State</a></th>
-    </tr>
-    <tr th:each="r : ${results}">
-        <td th:text="${r.student_student_number}"></td>
-        <td th:text="${r.student.name}"></td>
-        <td th:text="${r.student.surname}"></td>
-        <td th:text="${r.student.email}"></td>
-        <td th:text="${r.student.school}"></td>
-        <td th:text="${r.getGradeString()}"></td>
-        <td th:text="${r.state.getDescription()}"></td>
-        <!-- button to navigate to /EditResult for clicked row identified by student id and session id-->
-        <td th:if="${r.isEditableByTeacher()}">
-            <form action="#" th:action="@{/EditResult}" method="GET">
-                <input type="hidden" name="studentId" th:value="${r.student_student_number}" />
-                <input type="hidden" name="sessionId" th:value="${sessionId}" />
-                <input type="submit" value="Edit" />
-            </form>
-        </td>
-    </tr>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='studentId', order=${order eq 'asc' ? 'desc' : 'asc'})}">Student ID</a>
+                <span th:class="${sort == 'studentId' && order == 'asc' ? 'bold' : ''}"> &uarr;</span>
+                <span th:class="${sort == 'studentId' && order == 'desc' ? 'bold' : ''}"> &darr;</span> </th>
+            <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='name', order=${order eq 'asc' ? 'desc' : 'asc'})}">Name</a>
+                <span th:class="${sort == 'name' && order == 'asc' ? 'bold' : ''}"> &uarr;</span>
+                <span th:class="${sort == 'name' && order == 'desc' ? 'bold' : ''}"> &darr;</span> </th>
+            <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='surname', order=${order eq 'asc' ? 'desc' : 'asc'})}">Surname</a>
+                <span th:class="${sort == 'surname' && order == 'asc' ? 'bold' : ''}"> &uarr;</span>
+                <span th:class="${sort == 'surname' && order == 'desc' ? 'bold' : ''}"> &darr;</span> </th>
+            <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='email', order=${order eq 'asc' ? 'desc' : 'asc'})}">Email</a>
+                <span th:class="${sort == 'email' && order == 'asc' ? 'bold' : ''}"> &uarr;</span>
+                <span th:class="${sort == 'email' && order == 'desc' ? 'bold' : ''}"> &darr;</span> </th>
+            <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='school', order=${order eq 'asc' ? 'desc' : 'asc'})}">School</a>
+                <span th:class="${sort == 'school' && order == 'asc' ? 'bold' : ''}"> &uarr;</span>
+                <span th:class="${sort == 'school' && order == 'desc' ? 'bold' : ''}"> &darr;</span> </th>
+            <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='grade', order=${order eq 'asc' ? 'desc' : 'asc'})}">Grade</a>
+                <span th:class="${sort == 'grade' && order == 'asc' ? 'bold' : ''}"> &uarr;</span>
+                <span th:class="${sort == 'grade' && order == 'desc' ? 'bold' : ''}"> &darr;</span> </th>
+            <th class="sortable"><a th:href="@{/GetResults(sessionId=${sessionId}, sort='state', order=${order eq 'asc' ? 'desc' : 'asc'})}">State</a>
+                <span th:class="${sort == 'state' && order == 'asc' ? 'bold' : ''}"> &uarr;</span>
+                <span th:class="${sort == 'state' && order == 'desc' ? 'bold' : ''}"> &darr;</span> </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="r : ${results}">
+            <td th:text="${r.student_student_number}"></td>
+            <td th:text="${r.student.name}"></td>
+            <td th:text="${r.student.surname}"></td>
+            <td th:text="${r.student.email}"></td>
+            <td th:text="${r.student.school}"></td>
+            <td th:text="${r.getGradeString()}"></td>
+            <td th:text="${r.state.getDescription()}"></td>
+            <!-- button to navigate to /EditResult for clicked row identified by student id and session id-->
+            <td th:if="${r.isEditableByTeacher()}">
+                <form action="#" th:action="@{/EditResult}" method="GET">
+                    <input type="hidden" name="studentId" th:value="${r.student_student_number}" />
+                    <input type="hidden" name="sessionId" th:value="${sessionId}" />
+                    <input type="submit" value="Edit" />
+                </form>
+            </td>
+        </tr>
+    </tbody>
 </table>
 <form action="#" th:action="@{/PostResults}" method="POST">
     <input type="hidden" name="sessionId" th:value="${sessionId}" />

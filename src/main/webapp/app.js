@@ -17,8 +17,7 @@
 
     function handle401or403(data) {
         if (data.status == 401 || data.status == 403) {
-            window.sessionStorage.removeItem('login');
-            window.sessionStorage.removeItem('role');
+            window.sessionStorage.removeItem('user');
             window.location.href = data.getResponseHeader("Location");
         }
     }
@@ -35,7 +34,7 @@
         this.show = function (next) {
             var self = this;
             $.ajax({
-                url: apiUrl + "GetCoursesRIA",
+                url: apiUrl + "api/courses",
                 type: "GET",
                 success: function (data, state) {
                     if (data.length == 0) {
@@ -93,7 +92,7 @@
             this.courseId = courseId;
             var self = this;
             $.ajax({
-                url: apiUrl + "/api/sessions",
+                url: apiUrl + "api/sessions",
                 data: { courseId: courseId },
                 type: "GET",
                 success: function (data, state) {
@@ -193,7 +192,7 @@
             var self = this;
             this.sessionId = sessionId;
             $.ajax({
-                url: apiUrl + "GetResultsRIA",
+                url: apiUrl + "api/results",
                 data: { sessionId: sessionId },
                 type: "GET",
                 success: function (data, state) {
@@ -236,7 +235,7 @@
         this.action = function (action) {
             var self = this;
             $.ajax({
-                url: apiUrl + "api/postResults",
+                url: apiUrl + "api/results",
                 data: {
                     sessionId: this.sessionId,
                     action: action
@@ -308,20 +307,27 @@
             });
         }
 
-        this.update = function (result) {
-            if (result.state == "PUBBLICATO") {
-                this.button.show();
+        this.update = function (data) {
+            if (data.published == false) {
+                this.alert.text("Results not published yet");
+                this.alert.show();
             }
-            var tds = this.container.find('table.table td');
-
-            tds.eq(0).text(result.student.student_number);
-            tds.eq(1).text(result.student.name);
-            tds.eq(2).text(result.student.surname);
-            tds.eq(3).text(result.student.email);
-            tds.eq(4).text(result.student.school);
-            tds.eq(5).text(result.state);
-            tds.eq(6).text(result.grade);
-            this.container.show();
+            else{
+                result = data.result;
+                if (result.state == "PUBBLICATO") {
+                    this.button.show();
+                }
+                var tds = this.container.find('table.table td');
+    
+                tds.eq(0).text(result.student.student_number);
+                tds.eq(1).text(result.student.name);
+                tds.eq(2).text(result.student.surname);
+                tds.eq(3).text(result.student.email);
+                tds.eq(4).text(result.student.school);
+                tds.eq(5).text(result.state);
+                tds.eq(6).text(result.grade);
+                this.container.show();
+            }
 
         }
 
@@ -335,7 +341,7 @@
                 type: "POST",
                 success: function (data, state) {
                     self.refresh(() => {
-                        resultInfo.alert.text("Results rejected");
+                        resultInfo.alert.text("Grade rejected");
                         resultInfo.alert.show();
                     });
                 },
@@ -445,7 +451,7 @@
         this.show = function (reportId) {
             var self = this;
             $.ajax({
-                url: apiUrl + "api/getReport",
+                url: apiUrl + "api/report",
                 data: { reportId: reportId },
                 type: "GET",
                 success: function (data, state) {
@@ -487,6 +493,16 @@
         this.start = function () {
             $("#username").text(user.name + " " + user.surname);
             $("#role").text(user.role);
+            if (user.role == "student") {
+                $("#student-title").show();
+                $("#teacher-title").hide();
+            }else{
+                $("#student-title").hide();
+                $("#teacher-title").show();
+            }
+            $("#logout-btn").on("click", function () {
+                pageOrchestrator.logout();
+            });
 
             courseList = new CourseList($("#alert"), $("#course-table"), $("#course-table-body"));
             sessionList = new SessionList($("#alert"), $("#session-table"), $("#session-table-body"));
@@ -506,6 +522,21 @@
             );
         }
 
+        this.logout = function () {
+            $.ajax({
+                url: apiUrl + "/Logout",
+                type: "POST",
+                success: function (data, state) {
+                    window.sessionStorage.removeItem('user');
+                    window.location.href = "indexjs.html";
+                },
+                error: function (data, state) {
+                    alert.text("Error while logging out");
+                    alert.show();
+                }
+            });
+        }
+
         this.refresh = function () {
             resultsList.reset();
             resultInfo.reset();
@@ -513,6 +544,5 @@
             alert.text("");
             alert.hide();
         }
-
     }
 }

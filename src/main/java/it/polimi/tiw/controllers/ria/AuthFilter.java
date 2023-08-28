@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/GetCoursesRIA"})
+@WebFilter(urlPatterns = {"/api/editResults", "/api/courses", "/api/report", "/api/results", "/api/sessions", "/api/studentResult"})
 public class AuthFilter implements Filter {
     private FilterConfig filterConfig;
 

@@ -1,20 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Results</title>
-</head>
+<head th:replace="fragments/header :: default-head(title='Report')"></head>
 
 <body>
-<div>
-  <a th:href="@{/Logout}" style="text-align:right;">Logout</a>
-</div>
-<a th:href="@{/Home}">Home</a>
+<div th:replace="fragments/header :: navbar"></div>
 <h1>Verbale numero <span th:text="${report.idreport}"></span></h1>
 <p>Data verbale: <span th:text="${report.date}"></span></p>
 <p>Data appello: <span th:text="${report.session.date}"></span></p>
-<table>
+<table class="table table-bordered">
     <tr>
         <th>Student ID</th>
         <th>Name</th>

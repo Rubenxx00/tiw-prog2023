@@ -5,7 +5,12 @@
 th.sortable {
 	cursor: pointer;
 }
+th a { color: inherit; }
 
+.bold {
+    font-weight: bold;
+    color: #ff0000;
+}
 .modified {
   background-color: #FFC0C0;
 }

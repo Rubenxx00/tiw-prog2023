@@ -2,6 +2,7 @@ package it.polimi.tiw.controllers.pureHTML;
 
 import it.polimi.tiw.InvalidValueException;
 import it.polimi.tiw.beans.Result;
+import it.polimi.tiw.beans.User;
 import it.polimi.tiw.dao.ResultDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 import it.polimi.tiw.utils.Utils;
@@ -81,6 +82,7 @@ public class EditResult extends HttpServlet {
             ctx.setVariable("result", result);
             ctx.setVariable("student", result.getStudent());
             ctx.setVariable("gradeMap", Utils.gradeMap);
+            ctx.setVariable("user", (User) req.getSession().getAttribute("currentUser"));
             templateEngine.process("/WEB-INF/EditResult.html", ctx, resp.getWriter());
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");

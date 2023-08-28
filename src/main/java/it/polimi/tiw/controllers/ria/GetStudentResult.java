@@ -2,6 +2,7 @@ package it.polimi.tiw.controllers.ria;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -48,11 +49,20 @@ public class GetStudentResult extends HttpServlet{
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "No result found");
                 return;
             }
-            // send out json result
             resp.setContentType("application/json");
             resp.setCharacterEncoding("UTF-8");
-            String json = new Gson().toJson(result);
+            var msg = new HashMap<>();
+            if(result.isPublished()){
+                // send out json result
+                msg.put("published", true);
+                msg.put("result", result);
+            }
+            else{
+                msg.put("published", false);
+            }
+            String json = new Gson().toJson(msg);
             resp.getWriter().write(json);
+
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to recover results");
         }

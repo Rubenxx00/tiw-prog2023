@@ -49,16 +49,19 @@ public class Home extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// get user from session
 		User user = (User) request.getSession().getAttribute("currentUser");
+		ServletContext servletContext = getServletContext();
+		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+		List<Course> courses = null;
+		Integer selectedCourseId = null;
+		String path = null;
 		try {
 			if (user.getRole().equals("teacher")) {
-				String path = "/WEB-INF/TeacherHome.html";
-				ServletContext servletContext = getServletContext();
-				final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+				path = "/WEB-INF/TeacherHome.html";
 				CourseDAO courseDAO = new CourseDAO(connection);
-				List<Course> courses = courseDAO.findCoursesByTeacherId(user.getLogin());
+				courses = courseDAO.findCoursesByTeacherId(user.getLogin());
 
 				// Get the selected course ID from the "selected" parameter in the URL
-				Integer selectedCourseId = NumberUtils.createInteger(request.getParameter("selected"));
+				selectedCourseId = NumberUtils.createInteger(request.getParameter("selected"));
 
 				// Use the first course as fallback if no course is selected
 				if (selectedCourseId == null && !courses.isEmpty()) {
@@ -70,33 +73,29 @@ public class Home extends HttpServlet {
 					SessionDAO sessionDAO = new SessionDAO(connection);
 					ctx.setVariable("sessions", sessionDAO.getSessionsByCourseId(selectedCourseId));
 				}
-				ctx.setVariable("courses", courses);
-				ctx.setVariable("selectedCourseId", selectedCourseId);
-				templateEngine.process(path, ctx, response.getWriter());
 		} else {
-			String path = "/WEB-INF/StudentHome.html";
-			ServletContext servletContext = getServletContext();
-			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-				CourseDAO courseDAO = new CourseDAO(connection);
-				List<Course> courses = courseDAO.findEnrolledCoursesByStudentId(user.getLogin());
+			path = "/WEB-INF/StudentHome.html";
+			CourseDAO courseDAO = new CourseDAO(connection);
+			courses = courseDAO.findEnrolledCoursesByStudentId(user.getLogin());
 
-				// Get the selected course ID from the "selected" parameter in the URL
-				Integer selectedCourseId = NumberUtils.createInteger(request.getParameter("selected"));
+			// Get the selected course ID from the "selected" parameter in the URL
+			selectedCourseId = NumberUtils.createInteger(request.getParameter("selected"));
 
-				// Use the first course as fallback if no course is selected
-				if (selectedCourseId == null && !courses.isEmpty()) {
-					selectedCourseId = courses.get(0).getIdcourse();
-				}
+			// Use the first course as fallback if no course is selected
+			if (selectedCourseId == null && !courses.isEmpty()) {
+				selectedCourseId = courses.get(0).getIdcourse();
+			}
 
-				if (selectedCourseId != null) {
-					// Load sessions for selected course
-					SessionDAO sessionDAO = new SessionDAO(connection);
-					ctx.setVariable("sessions", sessionDAO.findEnrolledSessionsByStudentId(user.getLogin(), selectedCourseId));
-				}
-				ctx.setVariable("courses", courses);
-				ctx.setVariable("selectedCourseId", selectedCourseId);
-			templateEngine.process(path, ctx, response.getWriter());
+			if (selectedCourseId != null) {
+				// Load sessions for selected course
+				SessionDAO sessionDAO = new SessionDAO(connection);
+				ctx.setVariable("sessions", sessionDAO.findEnrolledSessionsByStudentId(user.getLogin(), selectedCourseId));
+			}
 		}
+		ctx.setVariable("courses", courses);
+		ctx.setVariable("selectedCourseId", selectedCourseId);
+		ctx.setVariable("user", user);
+		templateEngine.process(path, ctx, response.getWriter());
 		} catch (SQLException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");
 		}

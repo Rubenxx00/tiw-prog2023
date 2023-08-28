@@ -1,18 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Courses</title>
-    <link rel="stylesheet" href="css/mystyle.css">
-</head>
+<head th:replace="fragments/header :: default-head(title='Home')"></head>
 
 <body>
-<div>
-  <a th:href="@{/Logout}" style="text-align:right;">Logout</a>
-</div>
+<div th:replace="fragments/header :: navbar"></div>
 <h1>Courses you have enrolled</h1>
-<table border="solid">
+<table class="table table-bordered">
     <tr>
         <th>Course ID</th>
         <th>Title</th>
@@ -25,7 +19,7 @@
 </table>
 <br>
 <h2>Sessions</h2>
-<table border="solid">
+<table class="table table-bordered">
     <tr>
         <th>Session date</th>
     </tr>

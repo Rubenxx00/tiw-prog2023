@@ -79,7 +79,7 @@ public class ReportDAO {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     report.setIdreport(resultSet.getInt("idreport"));
-                    report.setDate(resultSet.getTimestamp("date"));
+                    report.setDate(resultSet.getTimestamp("datetime"));
                     Session session = new Session(
                             resultSet.getInt("idsession"),
                             resultSet.getInt("course_idcourse"),

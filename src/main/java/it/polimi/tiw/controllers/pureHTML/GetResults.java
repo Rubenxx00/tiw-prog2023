@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import it.polimi.tiw.beans.Result;
+import it.polimi.tiw.beans.User;
 import it.polimi.tiw.utils.Utils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.thymeleaf.TemplateEngine;
@@ -60,8 +61,10 @@ public class GetResults extends HttpServlet {
             final WebContext ctx = new WebContext(req, resp, getServletContext(), req.getLocale());
             ctx.setVariable("results", results);
             ctx.setVariable("sessionId", sessionId);
+            ctx.setVariable("sort", sortBy);
             ctx.setVariable("order", sortOrder);
             ctx.setVariable("arePublished", arePublished(results));
+            ctx.setVariable("user", (User) req.getSession().getAttribute("currentUser"));
             templateEngine.process("/WEB-INF/GetResults.html", ctx, resp.getWriter());
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database access failed");

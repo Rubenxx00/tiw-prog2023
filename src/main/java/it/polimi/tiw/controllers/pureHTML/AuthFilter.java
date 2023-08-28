@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/Home", "/GetSessions"})
+@WebFilter(urlPatterns = {"/Home", "/GetResults", "/GetReport", "/GetStudentResult", "/EditResult", "/PostResults", "/Logout"})
 public class AuthFilter implements Filter {
     private FilterConfig filterConfig;
 

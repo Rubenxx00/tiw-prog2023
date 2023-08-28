@@ -1,6 +1,7 @@
 package it.polimi.tiw.controllers.pureHTML;
 
 import it.polimi.tiw.beans.Report;
+import it.polimi.tiw.beans.User;
 import it.polimi.tiw.dao.ReportDAO;
 import it.polimi.tiw.dao.SessionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
@@ -62,6 +63,7 @@ public class GetReport extends HttpServlet {
             final WebContext ctx = new WebContext(req, resp, getServletContext(), req.getLocale());
             ctx.setVariable("report", report);
             ctx.setVariable("rows", report.getRows());
+            ctx.setVariable("user", (User) req.getSession().getAttribute("currentUser"));
             templateEngine.process("/WEB-INF/Report.html", ctx, resp.getWriter());
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to recover report");

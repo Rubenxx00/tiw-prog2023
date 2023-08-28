@@ -33,6 +33,7 @@ public class StudentDAO {
                     student.setLogin(resultSet.getInt("login"));
                     student.setName(resultSet.getString("name"));
                     student.setSurname(resultSet.getString("surname"));
+                    student.setEmail(resultSet.getString("email"));
                 }
             }
         }
