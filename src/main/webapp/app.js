@@ -211,7 +211,6 @@
         this.init = function () {
             let self = this;
             this.container.hide();
-            // TODO: better sorting
             $('.sortable').click(function () {
                 sortTable($(this).attr('id'));
             });

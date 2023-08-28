@@ -15,7 +15,10 @@ function createComparer(idx, asc) {
     // if order is ascending, compare 1st row to 2nd , otherwise 2nd to 1st
     var v1 = getCellValue(asc ? rowa : rowb, idx),
     v2 = getCellValue(asc ? rowb : rowa, idx);
-    
+    if (idx === 5) {
+      v1 = getGradeFromDescription(v1);
+      v2 = getGradeFromDescription(v2);
+    }    
     // If non numeric value
     if (v1 === '' || v2 === '' || isNaN(v1) || isNaN(v2)) {
       return v1.toString().localeCompare(v2); // lexical comparison

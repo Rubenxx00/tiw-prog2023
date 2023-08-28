@@ -10,7 +10,6 @@ function compare(v1, v2) {
   return v1 - v2; // v1 greater than v2 --> true
 }
 
-// TODO: move to other file
 function buildTableRow(exam, editable = false) {
   let tr = $("<tr></tr>");
   // Add columns
@@ -100,4 +99,13 @@ const gradeMap = {
 
 function getGradeDescription(grade) {
   return gradeMap[grade];
+}
+
+function getGradeFromDescription(description) {
+  for (let key in gradeMap) {
+    if (gradeMap[key] == description) {
+      return key;
+    }
+  }
+  return null;
 }
